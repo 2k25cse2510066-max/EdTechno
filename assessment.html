@@ -1,0 +1,2870 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Ability Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(-45deg,#1d2671,#c33764,#3a7bd5,#00d2ff);
+    background-size: 600% 600%;
+    animation: gradientBG 12s ease infinite;
+    display: flex;
+    justify-content: center;
+}
+@keyframes gradientBG {0% { background-position: 0% 50%; }50% { background-position: 100% 50%; }100% { background-position: 0% 50%; }}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 18px;
+    padding: 35px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+}
+
+h1, h2 { text-align: center; }
+label { font-weight: 600; display: block; margin-top: 12px; }
+input, select { width: 100%; padding: 12px; margin-top: 6px; border-radius: 10px; border: 1px solid #ccc; }
+button {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+button:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+.option { padding: 14px; margin: 10px 0; background: #f4f6ff; border-radius: 12px; border: 2px solid #aab3ff; cursor: pointer; transition: 0.25s; }
+.option:hover { background: #eef1ff; }
+.option.selected { background: #dfe3ff; border-color: #3a4fff; }
+
+#questionArea, #finalSummary { display: none; }
+
+/* Final Report */
+.report { background: linear-gradient(135deg,#f8f9ff,#eef1ff); animation: none; }
+.report-header { text-align:center; padding:20px; border-bottom:3px solid #5d75ff; }
+.student-info { display:flex; justify-content:space-between; margin:20px 0; font-weight:600; }
+.ability-card { background:white; padding:18px; margin:18px 0; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.12); border-left:6px solid #5d75ff; }
+.ability-card h3 { margin:0 0 8px 0; color:#333; }
+.progress-bar { width:100%; height:14px; background:#e0e0e0; border-radius:10px; overflow:hidden; margin:8px 0; }
+.progress { height:100%; background:linear-gradient(90deg,#5d75ff,#00c6ff); border-radius:10px; }
+.suggestion { font-style:italic; color:#444; margin-top:5px; }
+.overall-card { background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px; border-radius:14px; text-align:center; margin-bottom:25px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+.analysis-card { background:#f4f6ff; padding:18px; border-radius:12px; margin-top:20px; border-left:6px solid #5d75ff; }
+.career-card { background:linear-gradient(135deg,#00c6ff,#0072ff); color:white; padding:18px; border-radius:12px; margin-top:25px; }
+.chart-section { background:white; padding:25px; border-radius:12px; margin-top:25px; box-shadow:0 6px 18px rgba(0,0,0,0.15); }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg1:#0f172a;
+    --bg2:#1d4ed8;
+    --bg3:#06b6d4;
+    --white:#ffffff;
+    --glass:rgba(255,255,255,0.12);
+    --glass-strong:rgba(255,255,255,0.18);
+    --border:rgba(255,255,255,0.18);
+    --shadow:0 20px 60px rgba(0,0,0,0.28);
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;
+    padding:30px 16px;
+    background:
+        radial-gradient(circle at top left, rgba(34,211,238,0.25), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,0.25), transparent 25%),
+        linear-gradient(135deg,var(--bg1),var(--bg2),#2563eb);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow-x:hidden;
+    position:relative;
+}
+
+body::before,
+body::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.45;
+    z-index:0;
+}
+
+body::before{
+    width:240px;
+    height:240px;
+    background:#22d3ee;
+    top:40px;
+    left:20px;
+}
+
+body::after{
+    width:300px;
+    height:300px;
+    background:#8b5cf6;
+    bottom:40px;
+    right:20px;
+}
+
+.container{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:950px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:28px;
+    padding:40px 34px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+}
+
+.assessment-setup{
+    color:white;
+}
+
+.setup-badge{
+    width:max-content;
+    margin:0 auto 16px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#e0f2fe;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.4px;
+}
+
+.assessment-setup h1{
+    text-align:center;
+    font-size:42px;
+    line-height:1.2;
+    margin-bottom:12px;
+    font-weight:800;
+    color:white;
+}
+
+.setup-subline{
+    text-align:center;
+    max-width:720px;
+    margin:0 auto 28px;
+    color:rgba(255,255,255,0.78);
+    font-size:16px;
+    line-height:1.8;
+}
+
+label{
+    display:block;
+    margin-top:16px;
+    margin-bottom:8px;
+    font-weight:600;
+    font-size:15px;
+    color:#f8fafc;
+}
+
+input,select{
+    width:100%;
+    padding:15px 16px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,0.25);
+    font-family:'Poppins',sans-serif;
+    font-size:15px;
+    background:rgba(255,255,255,0.95);
+    outline:none;
+    transition:0.25s ease;
+}
+
+input:focus,select:focus{
+    border-color:#60a5fa;
+    box-shadow:0 0 0 4px rgba(96,165,250,0.16);
+}
+
+button{
+    padding:15px 28px;
+    margin-top:24px;
+    border:none;
+    border-radius:16px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:15px;
+    color:white;
+    background:linear-gradient(135deg,#6d5dfc,#3b82f6,#06b6d4);
+    background-size:200% 200%;
+    box-shadow:0 14px 30px rgba(59,130,246,0.28);
+    transition:0.3s ease;
+}
+
+button:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 34px rgba(0,0,0,0.22);
+    background-position:right center;
+}
+
+@media (max-width:768px){
+    .container{
+        padding:26px 18px;
+    }
+
+    .assessment-setup h1{
+        font-size:30px;
+    }
+
+    .setup-subline{
+        font-size:14px;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- START PAGE -->
+<div class="container" id="startPage">
+    <h1>Welcome to Student Ability Assessment</h1>
+    <label>Student Name:</label>
+    <input id="studentName" type="text" placeholder="Enter your name">
+    
+    <label>Select Class:</label>
+    <select id="studentClass">
+        <option value="1">Class 1</option>
+        <option value="2">Class 2</option>
+        <option value="3">Class 3</option>
+        <option value="4">Class 4</option>  
+        <option value="5">Class 5</option>
+        <option value="6">Class 6</option>
+        <option value="7">Class 7</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+        <option value="10">Class 10</option>
+        <option value="11">Class 11</option>
+        <option value="12">Class 12</option>
+    </select>
+
+    <label>Number of Questions per Ability:</label>
+    <input id="numQuestions" type="number" value="5" min="1" max="20">
+    <button onclick="startTest()">Start Test</button>
+</div>
+
+<!-- QUESTION AREA -->
+<div class="container" id="questionArea">
+    <h2 id="abilityTitle"></h2>
+    <div id="questionText"></div>
+    <div id="optionsBox"></div>
+    <button onclick="nextQuestion()">Next</button>
+</div>
+
+<!-- FINAL REPORT -->
+<div class="container report pdf-only" id="finalSummary">
+    <h2>Final Report</h2>
+    <div id="summaryText"></div>
+    <canvas id="scoreChart" style="max-width: 100%; margin-top: 20px;"></canvas>
+    <button onclick="downloadPDF()">Download PDF</button>
+</div>
+
+<div id="pdfWrapper" style="display:none;"></div>
+
+<script>
+// ==========================
+// GLOBAL STATE
+// ==========================
+const STATE = {
+    studentName: "",
+    class: "",
+    numQuestions: 5,
+    abilityOrder: ["Numeracy","Grammar","Reasoning","Memory","IQ","DecisionMaking","Discipline","Personality"],
+    scores: {},
+    totalQs: {},
+    correctQs: {},
+    currentAbilityIndex: 0,
+    currentQuestions: [],
+    currentQIndex: 0,
+    selectedAnswer: null
+};
+
+// ==========================
+// START TEST
+// ==========================
+function startTest(){
+    const name = document.getElementById("studentName").value.trim();
+    const cls = document.getElementById("studentClass").value;
+    const numQ = parseInt(document.getElementById("numQuestions").value);
+
+    if(!name){ alert("Enter your name"); return; }
+
+    STATE.studentName = name;
+    STATE.class = cls;
+    STATE.numQuestions = numQ;
+
+    document.getElementById("startPage").style.display = "none";
+    document.getElementById("questionArea").style.display = "block";
+
+    // Initialize scores
+    STATE.abilityOrder.forEach(ab=>{ STATE.scores[ab]=0; STATE.correctQs[ab]=0; STATE.totalQs[ab]=STATE.numQuestions; });
+
+    loadAbility();
+}
+
+// ==========================
+// QUESTION HANDLING (mock example questions)
+// ==========================
+const QUESTION_BANK = {
+    "1" : 
+    {
+        Numeracy: [
+{q:"2 + 1 = ?", options:["1","2","3","4"], ans:2},
+{q:"5 − 2 = ?", options:["2","3","4","5"], ans:1},
+{q:"1 + 1 = ?", options:["1","2","3","4"], ans:1},
+{q:"3 + 2 = ?", options:["4","5","6","3"], ans:1},
+{q:"4 − 1 = ?", options:["1","2","3","4"], ans:2},
+{q:"Count: 🍎🍎🍎 ?", options:["2","3","4","5"], ans:1},
+{q:"6 + 1 = ?", options:["5","6","7","8"], ans:2},
+{q:"5 − 5 = ?", options:["0","1","2","3"], ans:0},
+{q:"2 + 2 = ?", options:["2","3","4","5"], ans:2},
+{q:"10 − 1 = ?", options:["7","8","9","10"], ans:2},
+{q:"Which is bigger?", options:["2","5","1","3"], ans:1},
+{q:"3 comes after?", options:["1","2","4","5"], ans:1},
+{q:"7 comes after?", options:["6","8","5","4"], ans:0},
+{q:"How many fingers on one hand?", options:["3","4","5","6"], ans:2},
+{q:"1 more than 4?", options:["3","4","5","6"], ans:2},
+{q:"8 − 2 = ?", options:["5","6","7","8"], ans:1},
+{q:"9 + 0 = ?", options:["8","9","10","7"], ans:1},
+{q:"Smallest number?", options:["1","5","3","4"], ans:0},
+{q:"5 + 3 = ?", options:["6","7","8","9"], ans:2},
+{q:"10 − 10 = ?", options:["1","2","0","3"], ans:2}
+],
+
+Grammar: [
+{q:"A is for?", options:["Apple","Ball","Cat","Dog"], ans:0},
+{q:"B is for?", options:["Apple","Ball","Dog","Egg"], ans:1},
+{q:"Plural of cat?", options:["cats","cat","cates","caty"], ans:0},
+{q:"Fill: ___ dog", options:["A","An","On","In"], ans:0},
+{q:"Opposite of big?", options:["small","tall","fat","long"], ans:0},
+{q:"C is for?", options:["Car","Dog","Egg","Fan"], ans:0},
+{q:"Rhymes with hat?", options:["bat","pen","cup","dog"], ans:0},
+{q:"Which is a fruit?", options:["Apple","Chair","Bag","Book"], ans:0},
+{q:"D is for?", options:["Dog","Egg","Fish","Goat"], ans:0},
+{q:"Opposite of hot?", options:["cold","warm","big","red"], ans:0},
+{q:"E is for?", options:["Egg","Fan","Hat","Jam"], ans:0},
+{q:"Which is a color?", options:["Red","Cat","Ball","Cup"], ans:0},
+{q:"F is for?", options:["Fish","Goat","Hen","Ice"], ans:0},
+{q:"Opposite of up?", options:["down","in","on","over"], ans:0},
+{q:"G is for?", options:["Goat","Hat","Ink","Jar"], ans:0},
+{q:"Which is a name?", options:["Ravi","Ball","Chair","Pen"], ans:0},
+{q:"H is for?", options:["Hat","Ice","Jug","Kite"], ans:0},
+{q:"I is for?", options:["Ice","Jug","Lion","Man"], ans:0},
+{q:"J is for?", options:["Jug","Kite","Nest","Orange"], ans:0},
+{q:"Opposite of day?", options:["night","sun","light","noon"], ans:0}
+],
+
+Reasoning: [
+{q:"Odd one?", options:["Apple","Mango","Ball","Banana"], ans:2},
+{q:"Which flies?", options:["Bird","Dog","Cat","Fish"], ans:0},
+{q:"Which swims?", options:["Fish","Cow","Goat","Hen"], ans:0},
+{q:"Sun rises in?", options:["East","West","North","South"], ans:0},
+{q:"Baby of dog?", options:["Puppy","Kitten","Calf","Cub"], ans:0},
+{q:"Which is round?", options:["Ball","Book","Stick","Box"], ans:0},
+{q:"You wear on feet?", options:["Shoes","Hat","Shirt","Watch"], ans:0},
+{q:"Which gives milk?", options:["Cow","Lion","Tiger","Dog"], ans:0},
+{q:"2,4,6,?", options:["7","8","9","10"], ans:1},
+{q:"Day after Monday?", options:["Tuesday","Sunday","Friday","Saturday"], ans:0},
+{q:"Which is big?", options:["Elephant","Ant","Bee","Rat"], ans:0},
+{q:"Color of sky?", options:["Blue","Green","Red","Black"], ans:0},
+{q:"Which is sweet?", options:["Candy","Salt","Chili","Lemon"], ans:0},
+{q:"You sleep at?", options:["Night","Morning","Noon","Evening"], ans:0},
+{q:"Which has wheels?", options:["Car","Tree","Dog","Bag"], ans:0},
+{q:"5 comes after?", options:["4","6","3","2"], ans:0},
+{q:"Which barks?", options:["Dog","Cat","Cow","Goat"], ans:0},
+{q:"Which is a bird?", options:["Crow","Fish","Dog","Cat"], ans:0},
+{q:"Which is cold?", options:["Ice","Fire","Tea","Soup"], ans:0},
+{q:"Rainbow has many?", options:["Colors","Books","Balls","Cars"], ans:0}
+],
+
+Memory: [
+{q:"How many days in a week?", options:["7","5","6","8"], ans:0},
+{q:"How many months in a year?", options:["12","10","11","13"], ans:0},
+{q:"Color of banana?", options:["Yellow","Red","Blue","Black"], ans:0},
+{q:"How many eyes?", options:["2","1","3","4"], ans:0},
+{q:"How many ears?", options:["2","3","1","4"], ans:0},
+{q:"National bird (India)?", options:["Peacock","Crow","Hen","Duck"], ans:0},
+{q:"We drink?", options:["Water","Sand","Stone","Dust"], ans:0},
+{q:"We write with?", options:["Pencil","Shoe","Plate","Stick"], ans:0},
+{q:"You brush with?", options:["Toothbrush","Comb","Pen","Cup"], ans:0},
+{q:"How many legs dog has?", options:["4","2","3","5"], ans:0},
+{q:"You sleep on?", options:["Bed","Road","Tree","Box"], ans:0},
+{q:"We see with?", options:["Eyes","Hands","Legs","Ears"], ans:0},
+{q:"We hear with?", options:["Ears","Nose","Eyes","Hands"], ans:0},
+{q:"We smell with?", options:["Nose","Eyes","Ears","Mouth"], ans:0},
+{q:"Morning meal?", options:["Breakfast","Lunch","Dinner","Snack"], ans:0},
+{q:"Color of grass?", options:["Green","Blue","Red","Black"], ans:0},
+{q:"We sit on?", options:["Chair","Ceiling","Wall","Door"], ans:0},
+{q:"We wear on head?", options:["Cap","Socks","Shoes","Belt"], ans:0},
+{q:"Animal says meow?", options:["Cat","Dog","Cow","Goat"], ans:0},
+{q:"Animal says moo?", options:["Cow","Cat","Dog","Lion"], ans:0}
+],
+
+IQ: [
+{q:"Odd one?", options:["Dog","Cat","Car","Cow"], ans:2},
+{q:"1,2,3,?", options:["4","5","6","7"], ans:0},
+{q:"Which is heavy?", options:["Stone","Feather","Paper","Leaf"], ans:0},
+{q:"Which is fast?", options:["Car","Turtle","Snail","Ant"], ans:0},
+{q:"Which is tall?", options:["Giraffe","Rat","Cat","Dog"], ans:0},
+{q:"Which is big?", options:["Bus","Ball","Pen","Cup"], ans:0},
+{q:"Which is sweet?", options:["Cake","Salt","Chili","Rice"], ans:0},
+{q:"Which shines?", options:["Sun","Stone","Mud","Dust"], ans:0},
+{q:"Which is toy?", options:["Doll","Knife","Plate","Spoon"], ans:0},
+{q:"Which flies?", options:["Kite","Car","Dog","Ball"], ans:0},
+{q:"Which is fruit?", options:["Mango","Potato","Carrot","Onion"], ans:0},
+{q:"Which is drink?", options:["Milk","Rice","Bread","Egg"], ans:0},
+{q:"Which is animal?", options:["Lion","Table","Bag","Chair"], ans:0},
+{q:"Which is red?", options:["Apple","Sky","Grass","Milk"], ans:0},
+{q:"Which is cold?", options:["Ice","Tea","Soup","Rice"], ans:0},
+{q:"Which is round?", options:["Ball","Stick","Book","Pen"], ans:0},
+{q:"Which is soft?", options:["Pillow","Stone","Brick","Wood"], ans:0},
+{q:"Which is loud?", options:["Drum","Feather","Leaf","Cloth"], ans:0},
+{q:"Which is bird?", options:["Parrot","Dog","Cat","Cow"], ans:0},
+{q:"Which is water animal?", options:["Fish","Dog","Cat","Hen"], ans:0}
+],
+
+DecisionMaking: [
+{q:"Friend is sad. You?", options:["Help","Laugh","Run","Ignore"], ans:0},
+{q:"See trash. You?", options:["Throw in bin","Kick","Ignore","Play"], ans:0},
+{q:"Teacher asks question?", options:["Answer","Shout","Sleep","Run"], ans:0},
+{q:"Hungry at school?", options:["Eat food","Cry","Throw","Hide"], ans:0},
+{q:"Friend falls?", options:["Help","Laugh","Leave","Ignore"], ans:0},
+{q:"Time to study?", options:["Study","Play","Sleep","Run"], ans:0},
+{q:"See fight?", options:["Call teacher","Join","Watch","Laugh"], ans:0},
+{q:"Lost pencil?", options:["Ask nicely","Cry","Shout","Hit"], ans:0},
+{q:"Want toy?", options:["Ask","Snatch","Cry","Hide"], ans:0},
+{q:"See water spill?", options:["Tell adult","Run","Play","Ignore"], ans:0},
+{q:"Homework time?", options:["Do it","Skip","Sleep","Play"], ans:0},
+{q:"Friend shares?", options:["Say thanks","Ignore","Throw","Hide"], ans:0},
+{q:"Wrong done?", options:["Say sorry","Lie","Hide","Blame"], ans:0},
+{q:"Queue time?", options:["Wait turn","Push","Run","Cry"], ans:0},
+{q:"See hurt friend?", options:["Help","Laugh","Ignore","Run"], ans:0},
+{q:"Class rule?", options:["Follow","Break","Hide","Ignore"], ans:0},
+{q:"Borrow pencil?", options:["Return","Keep","Hide","Throw"], ans:0},
+{q:"Library?", options:["Quiet","Shout","Run","Play"], ans:0},
+{q:"Playtime over?", options:["Go to class","Hide","Cry","Run"], ans:0},
+{q:"Teacher calls?", options:["Go","Hide","Run","Ignore"], ans:0}
+],
+
+Discipline: [
+{q:"Come to school?", options:["On time","Late","Never","Sleep"], ans:0},
+{q:"Homework?", options:["Do daily","Skip","Forget","Hide"], ans:0},
+{q:"Classroom?", options:["Sit calm","Run","Shout","Jump"], ans:0},
+{q:"Uniform?", options:["Wear proper","Dirty","No wear","Tear"], ans:0},
+{q:"Teacher speaks?", options:["Listen","Talk","Laugh","Run"], ans:0},
+{q:"Books care?", options:["Keep neat","Tear","Throw","Lose"], ans:0},
+{q:"Line?", options:["Stand","Push","Run","Fight"], ans:0},
+{q:"School rules?", options:["Follow","Break","Ignore","Laugh"], ans:0},
+{q:"Time to sleep?", options:["Sleep","Play","Run","Shout"], ans:0},
+{q:"Lunch time?", options:["Eat nicely","Throw","Play","Shout"], ans:0},
+{q:"Speak?", options:["Politely","Shout","Cry","Fight"], ans:0},
+{q:"Bag care?", options:["Keep clean","Throw","Dirty","Lose"], ans:0},
+{q:"Water bottle?", options:["Carry","Forget","Throw","Lose"], ans:0},
+{q:"Class work?", options:["Complete","Skip","Hide","Cry"], ans:0},
+{q:"Sports?", options:["Play fair","Fight","Cheat","Cry"], ans:0},
+{q:"Elders?", options:["Respect","Shout","Ignore","Run"], ans:0},
+{q:"School bell?", options:["Go class","Run out","Hide","Play"], ans:0},
+{q:"Friend talk?", options:["Wait turn","Interrupt","Shout","Push"], ans:0},
+{q:"Desk?", options:["Keep clean","Draw","Dirty","Break"], ans:0},
+{q:"Morning?", options:["Wake early","Sleep late","Cry","Hide"], ans:0}
+],
+
+Personality: [
+{q:"Kind child?", options:["Helps","Hits","Shouts","Pushes"], ans:0},
+{q:"Good friend?", options:["Shares","Snatches","Fights","Teases"], ans:0},
+{q:"Polite word?", options:["Please","Give","Move","Hey"], ans:0},
+{q:"Happy child?", options:["Smiles","Cries","Fights","Shouts"], ans:0},
+{q:"Honest child?", options:["Tells truth","Lies","Hides","Blames"], ans:0},
+{q:"Caring child?", options:["Helps","Ignores","Laughs","Runs"], ans:0},
+{q:"Brave child?", options:["Tries","Hides","Cries","Runs"], ans:0},
+{q:"Friendly?", options:["Greets","Ignores","Pushes","Fights"], ans:0},
+{q:"Good manners?", options:["Say thank you","Shout","Cry","Run"], ans:0},
+{q:"Loving?", options:["Kind","Mean","Rude","Angry"], ans:0},
+{q:"Calm child?", options:["Quiet","Shout","Fight","Cry"], ans:0},
+{q:"Sharing?", options:["Good","Bad","Wrong","Mean"], ans:0},
+{q:"Respect?", options:["Good","Bad","Fight","Push"], ans:0},
+{q:"Helpful?", options:["Yes","No","Fight","Push"], ans:0},
+{q:"Good talk?", options:["Soft","Loud","Rude","Angry"], ans:0},
+{q:"Good play?", options:["Together","Fight","Push","Cry"], ans:0},
+{q:"Good heart?", options:["Kind","Mean","Angry","Rude"], ans:0},
+{q:"Nice child?", options:["Smiles","Hits","Pushes","Shouts"], ans:0},
+{q:"Good behavior?", options:["Listen","Ignore","Fight","Cry"], ans:0},
+{q:"Good student?", options:["Studies","Sleeps","Fights","Runs"], ans:0}]
+    },
+    "2" :
+    {
+        Numeracy: [
+{q:"5 + 4 = ?", options:["7","8","9","6"], ans:2},
+{q:"9 − 3 = ?", options:["5","6","7","4"], ans:1},
+{q:"2 + 7 = ?", options:["8","9","10","7"], ans:1},
+{q:"10 − 5 = ?", options:["4","5","6","3"], ans:1},
+{q:"6 + 3 = ?", options:["8","9","7","6"], ans:1},
+{q:"8 − 2 = ?", options:["5","6","7","4"], ans:1},
+{q:"4 + 4 = ?", options:["6","7","8","9"], ans:2},
+{q:"7 − 1 = ?", options:["5","6","4","7"], ans:1},
+{q:"3 + 5 = ?", options:["7","8","9","6"], ans:1},
+{q:"10 − 2 = ?", options:["6","7","8","9"], ans:2},
+{q:"1 more than 6?", options:["5","6","7","8"], ans:2},
+{q:"1 less than 9?", options:["7","8","9","6"], ans:1},
+{q:"5 + 5 = ?", options:["9","10","11","8"], ans:1},
+{q:"12 − 2 = ?", options:["8","9","10","11"], ans:2},
+{q:"Which is greater?", options:["3","7","2","5"], ans:1},
+{q:"6 + 2 = ?", options:["7","8","9","6"], ans:1},
+{q:"9 − 1 = ?", options:["7","8","6","5"], ans:1},
+{q:"4 + 3 = ?", options:["6","7","8","5"], ans:1},
+{q:"11 − 1 = ?", options:["9","10","11","8"], ans:1},
+{q:"2 tens = ?", options:["10","20","30","40"], ans:1}
+],
+
+Grammar: [
+{q:"Plural of dog?", options:["dogs","dog","doges","doggy"], ans:0},
+{q:"Opposite of tall?", options:["short","big","fat","long"], ans:0},
+{q:"Fill: ___ apple", options:["a","an","on","in"], ans:1},
+{q:"Cat is a?", options:["animal","fruit","color","toy"], ans:0},
+{q:"Past of go?", options:["goed","went","gone","go"], ans:1},
+{q:"Rhymes with sun?", options:["run","pen","cup","bag"], ans:0},
+{q:"Color word?", options:["Blue","Dog","Ball","Chair"], ans:0},
+{q:"Opposite of open?", options:["close","start","up","on"], ans:0},
+{q:"We use to write?", options:["pen","shoe","plate","cap"], ans:0},
+{q:"Bird can?", options:["fly","swim","drive","read"], ans:0},
+{q:"Plural of book?", options:["books","book","bookes","booky"], ans:0},
+{q:"Fill: This is ___ cat", options:["a","an","the","on"], ans:0},
+{q:"Opposite of happy?", options:["sad","glad","big","fast"], ans:0},
+{q:"Name word?", options:["Rita","blue","run","fast"], ans:0},
+{q:"Action word?", options:["run","chair","book","ball"], ans:0},
+{q:"Past of eat?", options:["eated","ate","eat","eats"], ans:1},
+{q:"Rhymes with pen?", options:["hen","dog","cup","ball"], ans:0},
+{q:"Which is a fruit?", options:["Mango","Car","Bag","Fan"], ans:0},
+{q:"Opposite of day?", options:["night","sun","light","noon"], ans:0},
+{q:"Fill: ___ umbrella", options:["a","an","the","on"], ans:1}
+],
+
+Reasoning: [
+{q:"Odd one?", options:["Dog","Cat","Cow","Car"], ans:3},
+{q:"Which flies?", options:["Bird","Dog","Cat","Goat"], ans:0},
+{q:"Which swims?", options:["Fish","Hen","Cow","Dog"], ans:0},
+{q:"Sun rises in?", options:["East","West","North","South"], ans:0},
+{q:"Baby of cat?", options:["Kitten","Puppy","Calf","Cub"], ans:0},
+{q:"Round object?", options:["Ball","Book","Stick","Box"], ans:0},
+{q:"Wear on head?", options:["Cap","Shoe","Sock","Belt"], ans:0},
+{q:"Gives milk?", options:["Cow","Lion","Tiger","Dog"], ans:0},
+{q:"2,4,6,?", options:["7","8","9","10"], ans:1},
+{q:"Day after Friday?", options:["Saturday","Sunday","Monday","Tuesday"], ans:0},
+{q:"Big animal?", options:["Elephant","Ant","Bee","Rat"], ans:0},
+{q:"Sky color?", options:["Blue","Red","Green","Black"], ans:0},
+{q:"Sweet food?", options:["Candy","Salt","Chili","Rice"], ans:0},
+{q:"Sleep time?", options:["Night","Morning","Noon","Evening"], ans:0},
+{q:"Has wheels?", options:["Car","Tree","Dog","Bag"], ans:0},
+{q:"5 comes after?", options:["4","6","3","2"], ans:0},
+{q:"Barks?", options:["Dog","Cat","Cow","Goat"], ans:0},
+{q:"Bird?", options:["Crow","Fish","Dog","Cat"], ans:0},
+{q:"Cold thing?", options:["Ice","Fire","Tea","Soup"], ans:0},
+{q:"Rainbow has?", options:["Colors","Books","Balls","Cars"], ans:0}
+],
+
+Memory: [
+{q:"Days in a week?", options:["7","5","6","8"], ans:0},
+{q:"Months in a year?", options:["12","10","11","13"], ans:0},
+{q:"Banana color?", options:["Yellow","Red","Blue","Black"], ans:0},
+{q:"How many eyes?", options:["2","1","3","4"], ans:0},
+{q:"How many ears?", options:["2","3","1","4"], ans:0},
+{q:"We drink?", options:["Water","Sand","Dust","Stone"], ans:0},
+{q:"We write with?", options:["Pencil","Shoe","Plate","Stick"], ans:0},
+{q:"Brush teeth with?", options:["Toothbrush","Comb","Pen","Cup"], ans:0},
+{q:"Dog has legs?", options:["4","2","3","5"], ans:0},
+{q:"Sleep on?", options:["Bed","Road","Tree","Box"], ans:0},
+{q:"See with?", options:["Eyes","Hands","Legs","Ears"], ans:0},
+{q:"Hear with?", options:["Ears","Nose","Eyes","Hands"], ans:0},
+{q:"Smell with?", options:["Nose","Eyes","Ears","Mouth"], ans:0},
+{q:"Morning meal?", options:["Breakfast","Lunch","Dinner","Snack"], ans:0},
+{q:"Grass color?", options:["Green","Blue","Red","Black"], ans:0},
+{q:"Sit on?", options:["Chair","Ceiling","Wall","Door"], ans:0},
+{q:"Wear on head?", options:["Cap","Socks","Shoes","Belt"], ans:0},
+{q:"Meow sound?", options:["Cat","Dog","Cow","Lion"], ans:0},
+{q:"Moo sound?", options:["Cow","Cat","Dog","Hen"], ans:0},
+{q:"We read?", options:["Book","Shoe","Plate","Ball"], ans:0}
+],
+
+IQ: [
+{q:"1,2,3,?", options:["4","5","6","7"], ans:0},
+{q:"Odd one?", options:["Dog","Cat","Car","Cow"], ans:2},
+{q:"Heavy?", options:["Stone","Leaf","Paper","Feather"], ans:0},
+{q:"Fast?", options:["Car","Snail","Turtle","Ant"], ans:0},
+{q:"Tall?", options:["Giraffe","Rat","Cat","Dog"], ans:0},
+{q:"Big?", options:["Bus","Pen","Cup","Ball"], ans:0},
+{q:"Sweet?", options:["Cake","Salt","Chili","Rice"], ans:0},
+{q:"Shines?", options:["Sun","Stone","Mud","Dust"], ans:0},
+{q:"Toy?", options:["Doll","Knife","Plate","Spoon"], ans:0},
+{q:"Flies?", options:["Kite","Car","Dog","Ball"], ans:0},
+{q:"Fruit?", options:["Mango","Potato","Onion","Carrot"], ans:0},
+{q:"Drink?", options:["Milk","Rice","Bread","Egg"], ans:0},
+{q:"Animal?", options:["Lion","Table","Bag","Chair"], ans:0},
+{q:"Red?", options:["Apple","Sky","Grass","Milk"], ans:0},
+{q:"Cold?", options:["Ice","Tea","Soup","Rice"], ans:0},
+{q:"Round?", options:["Ball","Stick","Book","Pen"], ans:0},
+{q:"Soft?", options:["Pillow","Stone","Brick","Wood"], ans:0},
+{q:"Loud?", options:["Drum","Leaf","Feather","Cloth"], ans:0},
+{q:"Bird?", options:["Parrot","Dog","Cat","Cow"], ans:0},
+{q:"Water animal?", options:["Fish","Dog","Cat","Hen"], ans:0}
+],
+
+DecisionMaking: [
+{q:"Friend is sad?", options:["Help","Laugh","Run","Ignore"], ans:0},
+{q:"See trash?", options:["Use bin","Kick","Play","Ignore"], ans:0},
+{q:"Teacher asks?", options:["Answer","Sleep","Run","Shout"], ans:0},
+{q:"Hungry?", options:["Eat food","Cry","Throw","Hide"], ans:0},
+{q:"Friend falls?", options:["Help","Laugh","Leave","Ignore"], ans:0},
+{q:"Study time?", options:["Study","Play","Sleep","Run"], ans:0},
+{q:"See fight?", options:["Call teacher","Join","Watch","Laugh"], ans:0},
+{q:"Lost pencil?", options:["Ask","Cry","Shout","Hit"], ans:0},
+{q:"Want toy?", options:["Ask","Snatch","Cry","Hide"], ans:0},
+{q:"Water spill?", options:["Tell adult","Run","Play","Ignore"], ans:0},
+{q:"Homework?", options:["Do it","Skip","Sleep","Play"], ans:0},
+{q:"Friend shares?", options:["Say thanks","Ignore","Throw","Hide"], ans:0},
+{q:"Did wrong?", options:["Say sorry","Lie","Hide","Blame"], ans:0},
+{q:"Queue?", options:["Wait turn","Push","Run","Cry"], ans:0},
+{q:"Hurt friend?", options:["Help","Laugh","Ignore","Run"], ans:0},
+{q:"Class rule?", options:["Follow","Break","Hide","Ignore"], ans:0},
+{q:"Borrow pencil?", options:["Return","Keep","Hide","Throw"], ans:0},
+{q:"Library?", options:["Quiet","Shout","Run","Play"], ans:0},
+{q:"Play over?", options:["Go class","Hide","Cry","Run"], ans:0},
+{q:"Teacher calls?", options:["Go","Hide","Run","Ignore"], ans:0}
+],
+
+Discipline: [
+{q:"Come to school?", options:["On time","Late","Never","Sleep"], ans:0},
+{q:"Homework?", options:["Do daily","Skip","Forget","Hide"], ans:0},
+{q:"Class?", options:["Sit calm","Run","Shout","Jump"], ans:0},
+{q:"Uniform?", options:["Wear proper","Dirty","No wear","Tear"], ans:0},
+{q:"Teacher speaks?", options:["Listen","Talk","Laugh","Run"], ans:0},
+{q:"Books?", options:["Keep neat","Tear","Throw","Lose"], ans:0},
+{q:"Line?", options:["Stand","Push","Run","Fight"], ans:0},
+{q:"Rules?", options:["Follow","Break","Ignore","Laugh"], ans:0},
+{q:"Sleep time?", options:["Sleep","Play","Run","Shout"], ans:0},
+{q:"Lunch?", options:["Eat nicely","Throw","Play","Shout"], ans:0},
+{q:"Speak?", options:["Politely","Shout","Cry","Fight"], ans:0},
+{q:"Bag?", options:["Keep clean","Throw","Dirty","Lose"], ans:0},
+{q:"Bottle?", options:["Carry","Forget","Throw","Lose"], ans:0},
+{q:"Work?", options:["Complete","Skip","Hide","Cry"], ans:0},
+{q:"Sports?", options:["Play fair","Fight","Cheat","Cry"], ans:0},
+{q:"Elders?", options:["Respect","Shout","Ignore","Run"], ans:0},
+{q:"Bell rings?", options:["Go class","Run out","Hide","Play"], ans:0},
+{q:"Friend talks?", options:["Wait turn","Interrupt","Shout","Push"], ans:0},
+{q:"Desk?", options:["Keep clean","Draw","Dirty","Break"], ans:0},
+{q:"Morning?", options:["Wake early","Sleep late","Cry","Hide"], ans:0}
+],
+
+Personality: [
+{q:"Kind child?", options:["Helps","Hits","Shouts","Pushes"], ans:0},
+{q:"Good friend?", options:["Shares","Snatches","Fights","Teases"], ans:0},
+{q:"Polite word?", options:["Please","Give","Move","Hey"], ans:0},
+{q:"Happy child?", options:["Smiles","Cries","Fights","Shouts"], ans:0},
+{q:"Honest?", options:["Tells truth","Lies","Hides","Blames"], ans:0},
+{q:"Caring?", options:["Helps","Ignores","Laughs","Runs"], ans:0},
+{q:"Brave?", options:["Tries","Hides","Cries","Runs"], ans:0},
+{q:"Friendly?", options:["Greets","Ignores","Pushes","Fights"], ans:0},
+{q:"Manners?", options:["Say thank you","Shout","Cry","Run"], ans:0},
+{q:"Loving?", options:["Kind","Mean","Rude","Angry"], ans:0},
+{q:"Calm?", options:["Quiet","Shout","Fight","Cry"], ans:0},
+{q:"Sharing?", options:["Good","Bad","Wrong","Mean"], ans:0},
+{q:"Respect?", options:["Good","Bad","Fight","Push"], ans:0},
+{q:"Helpful?", options:["Yes","No","Fight","Push"], ans:0},
+{q:"Talk?", options:["Soft","Loud","Rude","Angry"], ans:0},
+{q:"Play?", options:["Together","Fight","Push","Cry"], ans:0},
+{q:"Good heart?", options:["Kind","Mean","Angry","Rude"], ans:0},
+{q:"Nice child?", options:["Smiles","Hits","Pushes","Shouts"], ans:0},
+{q:"Behavior?", options:["Listen","Ignore","Fight","Cry"], ans:0},
+{q:"Good student?", options:["Studies","Sleeps","Fights","Runs"], ans:0}]
+    },
+"3": 
+{
+    Numeracy: [
+{q:"5 + 3 = ?", options:["6","7","8","9"], ans:2},
+{q:"10 − 4 = ?", options:["5","6","7","8"], ans:1},
+{q:"2 × 6 = ?", options:["10","11","12","13"], ans:2},
+{q:"12 ÷ 3 = ?", options:["2","3","4","5"], ans:2},
+{q:"What comes after 49?", options:["48","50","51","47"], ans:1},
+{q:"What is 1 more than 99?", options:["100","98","101","97"], ans:0},
+{q:"15 + 5 = ?", options:["18","19","20","21"], ans:2},
+{q:"20 − 10 = ?", options:["5","10","15","20"], ans:1},
+{q:"3 × 5 = ?", options:["15","10","8","12"], ans:0},
+{q:"9 ÷ 3 = ?", options:["1","2","3","4"], ans:2},
+{q:"Largest number?", options:["14","41","11","9"], ans:1},
+{q:"Smallest number?", options:["3","7","1","5"], ans:2},
+{q:"8 + 7 = ?", options:["14","15","16","13"], ans:1},
+{q:"30 − 5 = ?", options:["20","25","15","10"], ans:1},
+{q:"4 × 4 = ?", options:["8","12","16","20"], ans:2},
+{q:"Half of 10?", options:["2","3","4","5"], ans:3},
+{q:"Double of 6?", options:["10","11","12","13"], ans:2},
+{q:"How many days in a week?", options:["5","6","7","8"], ans:2},
+{q:"Count by 2 after 6", options:["7","8","9","10"], ans:1},
+{q:"50 + 10 = ?", options:["55","60","65","70"], ans:1}
+],
+
+Grammar: [
+{q:"Choose naming word", options:["run","dog","blue","jump"], ans:1},
+{q:"Opposite of hot", options:["warm","cold","sun","heat"], ans:1},
+{q:"Plural of cat", options:["cats","catz","cates","cat"], ans:0},
+{q:"He ___ playing.", options:["is","are","am","be"], ans:0},
+{q:"Color word?", options:["red","ball","jump","play"], ans:0},
+{q:"Action word?", options:["sit","chair","table","bag"], ans:0},
+{q:"‘I’ is a?", options:["pronoun","noun","verb","color"], ans:0},
+{q:"Opposite of big", options:["large","huge","small","tall"], ans:2},
+{q:"Bird can ___", options:["fly","read","write","sing"], ans:0},
+{q:"Fill: This is ___ apple.", options:["a","an","the","no"], ans:1},
+{q:"Plural of boy", options:["boys","boies","boyes","boy"], ans:0},
+{q:"Sun is ___", options:["bright","run","jump","sit"], ans:0},
+{q:"Choose verb", options:["eat","mango","book","pen"], ans:0},
+{q:"Opposite of day", options:["light","night","sun","dark"], ans:1},
+{q:"She ___ my friend.", options:["is","are","am","be"], ans:0},
+{q:"Choose pronoun", options:["he","ball","tree","red"], ans:0},
+{q:"We ___ happy.", options:["is","are","am","be"], ans:1},
+{q:"Plural of box", options:["boxs","boxes","box","boxez"], ans:1},
+{q:"Choose noun", options:["car","run","jump","blue"], ans:0},
+{q:"Opposite of up", options:["down","top","over","high"], ans:0}
+],
+
+Reasoning: [
+{q:"Odd one out", options:["cat","dog","cow","car"], ans:3},
+{q:"2,4,6,?", options:["7","8","9","10"], ans:1},
+{q:"Sun rises in?", options:["north","south","east","west"], ans:2},
+{q:"Bird lives in?", options:["water","nest","road","box"], ans:1},
+{q:"Find different", options:["apple","mango","banana","potato"], ans:3},
+{q:"5,10,15,?", options:["18","20","25","30"], ans:1},
+{q:"Fish can?", options:["fly","swim","run","jump"], ans:1},
+{q:"Pen is for?", options:["eating","writing","flying","jumping"], ans:1},
+{q:"Cow gives?", options:["juice","milk","water","tea"], ans:1},
+{q:"We sleep at?", options:["night","noon","morning","evening"], ans:0},
+{q:"Wheel is part of?", options:["car","book","pen","bag"], ans:0},
+{q:"Dog sound?", options:["meow","moo","bark","roar"], ans:2},
+{q:"Rain comes from?", options:["sun","cloud","tree","land"], ans:1},
+{q:"Chair is for?", options:["sleep","sit","run","eat"], ans:1},
+{q:"Eye helps to?", options:["hear","see","smell","eat"], ans:1},
+{q:"1,2,3,?", options:["4","5","6","7"], ans:0},
+{q:"Night means?", options:["dark","bright","hot","cold"], ans:0},
+{q:"Book is for?", options:["reading","drinking","jumping","throwing"], ans:0},
+{q:"Shoes worn on?", options:["hand","head","feet","arm"], ans:2},
+{q:"Clock shows?", options:["time","date","year","day"], ans:0}
+],
+
+Memory: [
+{q:"Remember: Apple color?", options:["red","blue","green","black"], ans:0},
+{q:"How many days in week?", options:["5","6","7","8"], ans:2},
+{q:"How many eyes?", options:["1","2","3","4"], ans:1},
+{q:"Letters in CAT?", options:["2","3","4","5"], ans:1},
+{q:"Rainbow colors count?", options:["5","6","7","8"], ans:2},
+{q:"How many months?", options:["10","11","12","13"], ans:2},
+{q:"How many legs dog?", options:["2","3","4","5"], ans:2},
+{q:"Shape of sun?", options:["square","circle","triangle","star"], ans:1},
+{q:"Water color?", options:["blue","red","black","pink"], ans:0},
+{q:"We write with?", options:["pen","shoe","plate","cup"], ans:0},
+{q:"We eat with?", options:["spoon","book","toy","ball"], ans:0},
+{q:"Where do fish live?", options:["land","tree","water","sky"], ans:2},
+{q:"How many fingers?", options:["5","10","15","20"], ans:1},
+{q:"Bird has?", options:["wings","fins","hands","paws"], ans:0},
+{q:"Moon seen at?", options:["night","noon","morning","anytime"], ans:0},
+{q:"Car has?", options:["wheels","wings","fins","legs"], ans:0},
+{q:"We drink?", options:["water","sand","stone","paper"], ans:0},
+{q:"School place to?", options:["study","sleep","cook","swim"], ans:0},
+{q:"Tree color leaves?", options:["green","blue","red","white"], ans:0},
+{q:"We hear with?", options:["ears","eyes","nose","mouth"], ans:0}
+],
+
+IQ: [
+{q:"Odd one", options:["1","2","3","apple"], ans:3},
+{q:"Complete: A,B,C,?", options:["D","E","F","G"], ans:0},
+{q:"5 is greater than?", options:["6","7","4","8"], ans:2},
+{q:"Which is heavy?", options:["feather","stone","paper","leaf"], ans:1},
+{q:"Tallest animal?", options:["dog","cat","giraffe","rat"], ans:2},
+{q:"Fast animal?", options:["turtle","snail","cheetah","ant"], ans:2},
+{q:"Square has sides?", options:["2","3","4","5"], ans:2},
+{q:"Triangle sides?", options:["2","3","4","5"], ans:1},
+{q:"Morning comes after?", options:["night","evening","noon","day"], ans:0},
+{q:"Ice is?", options:["hot","cold","warm","dry"], ans:1},
+{q:"Which flies?", options:["car","plane","bus","train"], ans:1},
+{q:"Which swims?", options:["bird","fish","dog","cat"], ans:1},
+{q:"Bigger?", options:["ant","elephant","rat","cat"], ans:1},
+{q:"Which is fruit?", options:["carrot","potato","apple","onion"], ans:2},
+{q:"Which is color?", options:["run","blue","jump","sit"], ans:1},
+{q:"Which is number?", options:["A","B","3","C"], ans:2},
+{q:"Day after Monday?", options:["Sunday","Tuesday","Friday","Thursday"], ans:1},
+{q:"Opposite tall?", options:["high","short","big","long"], ans:1},
+{q:"Which is toy?", options:["ball","plate","cup","book"], ans:0},
+{q:"Which is body part?", options:["nose","chair","bag","pen"], ans:0}
+],
+
+DecisionMaking: [
+{q:"Hungry, you?", options:["eat food","sleep","run","cry"], ans:0},
+{q:"Thirsty, you?", options:["drink water","jump","sleep","write"], ans:0},
+{q:"Late for school?", options:["run","sleep","play","hide"], ans:0},
+{q:"Dirty hands?", options:["wash","eat","play","sleep"], ans:0},
+{q:"See fire?", options:["tell adult","touch","play","run to it"], ans:0},
+{q:"Cross road?", options:["look both sides","run fast","close eyes","jump"], ans:0},
+{q:"Homework time?", options:["do it","skip","sleep","play"], ans:0},
+{q:"Friend sad?", options:["help","laugh","leave","shout"], ans:0},
+{q:"Lost pencil?", options:["ask","cry","throw","hide"], ans:0},
+{q:"Class time?", options:["listen","talk","sleep","play"], ans:0},
+{q:"See trash?", options:["use bin","throw","kick","leave"], ans:0},
+{q:"Cold weather?", options:["wear sweater","swim","fan","ice"], ans:0},
+{q:"Hot day?", options:["drink water","wear coat","sleep","run"], ans:0},
+{q:"Book torn?", options:["tell teacher","hide","throw","draw"], ans:0},
+{q:"See stranger?", options:["stay safe","go","talk long","follow"], ans:0},
+{q:"Test tomorrow?", options:["study","play","sleep all day","ignore"], ans:0},
+{q:"Friend falls?", options:["help","laugh","run","ignore"], ans:0},
+{q:"Room messy?", options:["clean","leave","jump","sleep"], ans:0},
+{q:"Feel sick?", options:["tell adult","hide","run","play"], ans:0},
+{q:"Queue time?", options:["wait turn","push","shout","run"], ans:0}
+],
+
+Discipline: [
+{q:"Good habit?", options:["brushing","shouting","fighting","throwing"], ans:0},
+{q:"In class?", options:["sit quietly","run","shout","sleep"], ans:0},
+{q:"Respect elders?", options:["yes","no","sometimes","never"], ans:0},
+{q:"School rule?", options:["follow","break","ignore","forget"], ans:0},
+{q:"On time?", options:["good","bad","late","slow"], ans:0},
+{q:"Share toys?", options:["yes","no","fight","hide"], ans:0},
+{q:"Say please?", options:["polite","rude","angry","sad"], ans:0},
+{q:"Keep line?", options:["yes","push","run","jump"], ans:0},
+{q:"Homework daily?", options:["yes","no","rarely","never"], ans:0},
+{q:"Listen teacher?", options:["yes","no","talk","sleep"], ans:0},
+{q:"Keep clean?", options:["yes","no","dirty","messy"], ans:0},
+{q:"Use dustbin?", options:["yes","no","throw","kick"], ans:0},
+{q:"Talk softly?", options:["good","bad","loud","angry"], ans:0},
+{q:"Help others?", options:["yes","no","laugh","ignore"], ans:0},
+{q:"Wait turn?", options:["yes","push","run","skip"], ans:0},
+{q:"Be honest?", options:["yes","no","lie","hide"], ans:0},
+{q:"Follow rules?", options:["yes","no","maybe","never"], ans:0},
+{q:"Be kind?", options:["yes","no","angry","mean"], ans:0},
+{q:"Finish work?", options:["yes","no","leave","throw"], ans:0},
+{q:"Respect school?", options:["yes","no","draw walls","break"], ans:0}
+],
+
+Personality: [
+{q:"Kind child?", options:["helps","hits","shouts","fights"], ans:0},
+{q:"Happy child?", options:["smiles","cries","shouts","hits"], ans:0},
+{q:"Friendly?", options:["shares","fights","pushes","shouts"], ans:0},
+{q:"Brave?", options:["tries","hides","cries","runs away"], ans:0},
+{q:"Polite?", options:["says thank you","shouts","hits","angry"], ans:0},
+{q:"Good friend?", options:["helps","lies","teases","hits"], ans:0},
+{q:"Caring?", options:["helps","ignores","laughs","pushes"], ans:0},
+{q:"Truthful?", options:["tells truth","lies","hides","runs"], ans:0},
+{q:"Sharing?", options:["good","bad","angry","sad"], ans:0},
+{q:"Calm?", options:["quiet","loud","angry","wild"], ans:0},
+{q:"Helpful?", options:["yes","no","fight","push"], ans:0},
+{q:"Loving?", options:["kind","mean","angry","rude"], ans:0},
+{q:"Respectful?", options:["yes","no","shout","push"], ans:0},
+{q:"Patient?", options:["waits","pushes","cries","runs"], ans:0},
+{q:"Cheerful?", options:["smile","cry","shout","angry"], ans:0},
+{q:"Honest?", options:["truth","lie","hide","run"], ans:0},
+{q:"Friendly talk?", options:["soft","loud","angry","rude"], ans:0},
+{q:"Good behavior?", options:["yes","no","fight","push"], ans:0},
+{q:"Team player?", options:["helps team","alone","fight","leave"], ans:0},
+{q:"Positive?", options:["happy","sad","angry","cry"], ans:0}]
+},
+"4":
+{
+    // ================= CLASS 4 =================
+
+Numeracy:[
+{q:"25 + 17 = ?",options:["40","42","43","44"],ans:1},
+{q:"50 − 28 = ?",options:["20","21","22","23"],ans:2},
+{q:"6 × 7 = ?",options:["36","40","42","48"],ans:2},
+{q:"56 ÷ 8 = ?",options:["6","7","8","9"],ans:1},
+{q:"Place value of 5 in 352?",options:["5","50","500","15"],ans:1},
+{q:"Largest number?",options:["345","354","435","543"],ans:3},
+{q:"1/2 of 20?",options:["5","10","15","20"],ans:1},
+{q:"Perimeter of square side 4?",options:["12","14","16","18"],ans:2},
+{q:"9 × 9?",options:["72","81","90","99"],ans:1},
+{q:"100 ÷ 10?",options:["5","10","15","20"],ans:1},
+{q:"75 + 25?",options:["90","95","100","105"],ans:2},
+{q:"200 − 150?",options:["40","50","60","70"],ans:1},
+{q:"5 × 12?",options:["50","55","60","65"],ans:2},
+{q:"60 ÷ 5?",options:["10","11","12","13"],ans:2},
+{q:"Next after 399?",options:["398","400","401","402"],ans:1},
+{q:"Half of 50?",options:["20","25","30","35"],ans:1},
+{q:"Double of 18?",options:["34","36","38","40"],ans:1},
+{q:"Smallest?",options:["101","110","99","120"],ans:2},
+{q:"7+8?",options:["14","15","16","17"],ans:1},
+{q:"Area of 5×4 rectangle?",options:["15","18","20","25"],ans:2}
+],
+
+Grammar:[
+{q:"She ___ playing.",options:["is","are","am","be"],ans:0},
+{q:"Opposite of happy?",options:["sad","angry","tall","fast"],ans:0},
+{q:"Plural of child?",options:["childs","children","childes","child"],ans:1},
+{q:"He ___ a car.",options:["have","has","had","having"],ans:1},
+{q:"Past of go?",options:["goed","went","gone","go"],ans:1},
+{q:"A ___ of birds.",options:["flock","team","group","set"],ans:0},
+{q:"This is ___ apple.",options:["a","an","the","no"],ans:1},
+{q:"Synonym of big?",options:["small","large","tiny","thin"],ans:1},
+{q:"Dog is a ___",options:["verb","noun","adjective","adverb"],ans:1},
+{q:"She runs ___.",options:["quick","quickly","slow","happy"],ans:1},
+{q:"Capital of sentence?",options:["start","end","middle","none"],ans:0},
+{q:"Opposite of tall?",options:["high","short","big","fat"],ans:1},
+{q:"They ___ friends.",options:["is","are","am","be"],ans:1},
+{q:"Birds ___ fly.",options:["can","has","is","was"],ans:0},
+{q:"We ___ happy.",options:["is","are","was","am"],ans:1},
+{q:"Synonym of fast?",options:["quick","slow","late","weak"],ans:0},
+{q:"Past of eat?",options:["ate","eated","eat","eaten"],ans:0},
+{q:"Antonym of clean?",options:["dirty","clear","pure","neat"],ans:0},
+{q:"She has ___ umbrella.",options:["a","an","the","none"],ans:1},
+{q:"Sun is a ___",options:["person","place","thing","animal"],ans:2}
+],
+
+Reasoning:[
+{q:"2,4,6,?",options:["7","8","9","10"],ans:1},
+{q:"Odd one?",options:["Dog","Cat","Cow","Car"],ans:3},
+{q:"Morning comes after?",options:["night","evening","noon","day"],ans:0},
+{q:"5>3 and 3>1 so 5>?",options:["1","2","3","4"],ans:0},
+{q:"Pen is for writing, knife is for?",options:["cutting","reading","eating","drawing"],ans:0},
+{q:"7,14,21,?",options:["24","25","28","30"],ans:2},
+{q:"Which is fruit?",options:["Carrot","Potato","Apple","Onion"],ans:2},
+{q:"Sun rises in?",options:["west","north","east","south"],ans:2},
+{q:"If today Monday, tomorrow?",options:["Sun","Tue","Wed","Thu"],ans:1},
+{q:"Bird can?",options:["swim","fly","crawl","dig"],ans:1},
+{q:"Which is shape?",options:["Circle","Red","Big","Tall"],ans:0},
+{q:"10,20,30,?",options:["35","40","45","50"],ans:1},
+{q:"Fish lives in?",options:["land","water","tree","sky"],ans:1},
+{q:"Odd?",options:["2","4","6","7"],ans:3},
+{q:"Opposite of day?",options:["night","light","sun","moon"],ans:0},
+{q:"Cow gives?",options:["juice","milk","water","oil"],ans:1},
+{q:"Book is for?",options:["reading","eating","sleeping","playing"],ans:0},
+{q:"Wheel is part of?",options:["car","tree","house","book"],ans:0},
+{q:"Ice is?",options:["hot","cold","warm","dry"],ans:1},
+{q:"Teacher works in?",options:["school","shop","park","bus"],ans:0}
+],
+
+Memory:[
+{q:"How many days in week?",options:["5","6","7","8"],ans:2},
+{q:"How many months in year?",options:["10","11","12","13"],ans:2},
+{q:"Colors in rainbow?",options:["5","6","7","8"],ans:2},
+{q:"India’s national animal?",options:["Lion","Tiger","Elephant","Dog"],ans:1},
+{q:"How many hours in day?",options:["12","18","24","30"],ans:2},
+{q:"5 fingers in one hand?",options:["Yes","No","Sometimes","None"],ans:0},
+{q:"Seasons in year?",options:["2","3","4","5"],ans:2},
+{q:"Alphabet letters?",options:["24","25","26","27"],ans:2},
+{q:"Days in February (normal)?",options:["28","29","30","31"],ans:0},
+{q:"1 dozen = ?",options:["10","12","14","16"],ans:1},
+{q:"Triangle sides?",options:["2","3","4","5"],ans:1},
+{q:"Square sides?",options:["3","4","5","6"],ans:1},
+{q:"How many eyes?",options:["1","2","3","4"],ans:1},
+{q:"How many legs spider?",options:["6","8","10","12"],ans:1},
+{q:"Earth is a?",options:["star","planet","moon","sun"],ans:1},
+{q:"Sun is a?",options:["planet","star","moon","rock"],ans:1},
+{q:"Water freezes at?",options:["0°C","10°C","50°C","100°C"],ans:0},
+{q:"How many continents?",options:["5","6","7","8"],ans:2},
+{q:"National bird?",options:["Crow","Peacock","Parrot","Eagle"],ans:1},
+{q:"Opposite of remember?",options:["forget","learn","read","write"],ans:0}
+],
+
+IQ:[
+{q:"3+5×2?",options:["16","13","10","11"],ans:1},
+{q:"Odd one?",options:["2","4","6","9"],ans:3},
+{q:"If 1=A,2=B then 3=?",options:["A","B","C","D"],ans:2},
+{q:"Half of 40?",options:["10","20","30","40"],ans:1},
+{q:"Next: 5,10,15,?",options:["18","20","25","30"],ans:1},
+{q:"7×8?",options:["54","56","58","60"],ans:1},
+{q:"10 more than 90?",options:["95","100","110","120"],ans:1},
+{q:"Which heavier?",options:["Feather","Stone","Paper","Leaf"],ans:1},
+{q:"15−5?",options:["5","8","10","12"],ans:2},
+{q:"Which shape rolls?",options:["Cube","Sphere","Box","Book"],ans:1},
+{q:"Double 25?",options:["40","45","50","55"],ans:2},
+{q:"Next: A,B,C,?",options:["D","E","F","G"],ans:0},
+{q:"100 ÷ 4?",options:["20","25","30","35"],ans:1},
+{q:"If today Wed, yesterday?",options:["Tue","Mon","Thu","Fri"],ans:0},
+{q:"Which is liquid?",options:["Stone","Milk","Wood","Iron"],ans:1},
+{q:"2 tens = ?",options:["10","20","30","40"],ans:1},
+{q:"Which flies?",options:["Dog","Cat","Bird","Cow"],ans:2},
+{q:"5×5?",options:["20","25","30","35"],ans:1},
+{q:"Next: 2,6,10,?",options:["12","14","16","18"],ans:1},
+{q:"Largest?",options:["45","54","44","40"],ans:1}
+],
+
+DecisionMaking:[
+{q:"Homework or TV first?",options:["TV","Homework","Sleep","Play"],ans:1},
+{q:"See litter?",options:["Ignore","Pick it","Kick","Throw"],ans:1},
+{q:"Friend hurt?",options:["Help","Laugh","Run","Ignore"],ans:0},
+{q:"Exam tomorrow?",options:["Study","Play","Sleep","Ignore"],ans:0},
+{q:"Hungry?",options:["Eat","Cry","Sleep","Run"],ans:0},
+{q:"Lost book?",options:["Tell teacher","Hide","Cry","Ignore"],ans:0},
+{q:"See fire?",options:["Tell adult","Play","Run to it","Ignore"],ans:0},
+{q:"Feel sick?",options:["Tell parent","Hide","Play","Run"],ans:0},
+{q:"Cross road?",options:["Look both ways","Run","Close eyes","Jump"],ans:0},
+{q:"Room dirty?",options:["Clean","Ignore","Hide","Cry"],ans:0},
+{q:"Late to school?",options:["Rush safely","Sleep","Play","Hide"],ans:0},
+{q:"See bullying?",options:["Report","Join","Laugh","Ignore"],ans:0},
+{q:"Forgot homework?",options:["Tell truth","Lie","Hide","Run"],ans:0},
+{q:"See wallet?",options:["Give teacher","Keep","Throw","Hide"],ans:0},
+{q:"Thirsty?",options:["Drink water","Ignore","Cry","Run"],ans:0},
+{q:"Hot weather?",options:["Drink water","Wear coat","Run","Hide"],ans:0},
+{q:"Friend sad?",options:["Help","Ignore","Laugh","Leave"],ans:0},
+{q:"Break item?",options:["Tell truth","Hide","Blame","Run"],ans:0},
+{q:"School time?",options:["Go on time","Sleep","Play","Hide"],ans:0},
+{q:"Garbage?",options:["Use bin","Throw road","Hide","Kick"],ans:0}
+],
+
+Discipline:[
+{q:"Reach school?",options:["On time","Late","Never","Sometimes"],ans:0},
+{q:"Talk in class?",options:["No","Yes","Always","Often"],ans:0},
+{q:"Follow rules?",options:["Yes","No","Maybe","Never"],ans:0},
+{q:"Respect teacher?",options:["Yes","No","Sometimes","Never"],ans:0},
+{q:"Keep desk clean?",options:["Yes","No","Messy","Dirty"],ans:0},
+{q:"Listen carefully?",options:["Yes","No","Maybe","Never"],ans:0},
+{q:"Stand in line?",options:["Yes","No","Push","Run"],ans:0},
+{q:"Share things?",options:["Yes","No","Hide","Break"],ans:0},
+{q:"Finish work?",options:["Yes","No","Half","Never"],ans:0},
+{q:"Help others?",options:["Yes","No","Laugh","Ignore"],ans:0},
+{q:"Wear uniform?",options:["Yes","No","Maybe","Never"],ans:0},
+{q:"Keep quiet?",options:["Yes","No","Shout","Talk"],ans:0},
+{q:"Follow time?",options:["Yes","No","Late","Never"],ans:0},
+{q:"Respect elders?",options:["Yes","No","Maybe","Never"],ans:0},
+{q:"Say sorry?",options:["Yes","No","Never","Ignore"],ans:0},
+{q:"Wait turn?",options:["Yes","No","Push","Run"],ans:0},
+{q:"Be honest?",options:["Yes","No","Lie","Hide"],ans:0},
+{q:"Do duty?",options:["Yes","No","Avoid","Run"],ans:0},
+{q:"Be polite?",options:["Yes","No","Rude","Shout"],ans:0},
+{q:"Keep promises?",options:["Yes","No","Break","Forget"],ans:0}
+],
+
+Personality:[
+{q:"Are you kind?",options:["Yes","No","Sometimes","Never"],ans:0},
+{q:"Help friends?",options:["Yes","No","Ignore","Laugh"],ans:0},
+{q:"Share toys?",options:["Yes","No","Hide","Break"],ans:0},
+{q:"Say thank you?",options:["Yes","No","Never","Ignore"],ans:0},
+{q:"Smile often?",options:["Yes","No","Rarely","Never"],ans:0},
+{q:"Friendly?",options:["Yes","No","Sometimes","Never"],ans:0},
+{q:"Honest?",options:["Yes","No","Lie","Hide"],ans:0},
+{q:"Calm?",options:["Yes","No","Angry","Shout"],ans:0},
+{q:"Confident?",options:["Yes","No","Scared","Shy"],ans:0},
+{q:"Good listener?",options:["Yes","No","Talk","Ignore"],ans:0},
+{q:"Respect others?",options:["Yes","No","Rude","Mean"],ans:0},
+{q:"Helpful?",options:["Yes","No","Ignore","Lazy"],ans:0},
+{q:"Patient?",options:["Yes","No","Rush","Push"],ans:0},
+{q:"Polite?",options:["Yes","No","Rude","Shout"],ans:0},
+{q:"Team player?",options:["Yes","No","Alone","Fight"],ans:0},
+{q:"Brave?",options:["Yes","No","Fear","Hide"],ans:0},
+{q:"Cheerful?",options:["Yes","No","Sad","Angry"],ans:0},
+{q:"Caring?",options:["Yes","No","Mean","Ignore"],ans:0},
+{q:"Truthful?",options:["Yes","No","Lie","Hide"],ans:0},
+{q:"Positive?",options:["Yes","No","Negative","Sad"],ans:0}]
+},
+"5": {
+        Numeracy: [
+            { q: "What is 32 ÷ 4?", options: ["4","6","8","12"], answer: "8" },
+            { q: "What is 7 × 8?", options: ["48","56","64","42"], answer: "56" },
+            { q: "What is 6²?", options: ["12","18","36","24"], answer: "36" },
+            { q: "Convert 1/2 into decimal.", options: ["0.25","0.5","0.75","0.2"], answer: "0.5" },
+            { q: "Perimeter of square with side 5cm?", options: ["20","15","10","25"], answer: "20" },
+            { q: "15 + 27?", options: ["32","42","39","54"], answer: "42" },
+            { q: "Which number is even?", options: ["35","27","18","33"], answer: "18" },
+            { q: "Which is greater?", options: ["0.4","0.8","0.2","0.1"], answer: "0.8" },
+            { q: "LCM of 4 and 6?", options: ["6","8","10","12"], answer: "12" },
+            { q: "HCF of 12 and 16?", options: ["2","4","6","8"], answer: "4" },
+            { q: "3 × 11?", options: ["33","31","22","36"], answer: "33" },
+            { q: "Largest fraction?", options: ["1/4","2/4","3/4","1/2"], answer: "3/4" },
+            { q: "Successor of 199?", options: ["198","200","210","190"], answer: "200" },
+            { q: "1 km = ? meters", options: ["10","100","1000","10000"], answer: "1000" },
+            { q: "Which figure has 3 sides?", options: ["Square","Triangle","Rectangle","Circle"], answer: "Triangle" },
+            { q: "1/4 of 20?", options: ["3","4","5","6"], answer: "5" },
+            { q: "Which number is prime?", options: ["9","11","21","25"], answer: "11" },
+            { q: "100 – 45?", options: ["55","65","45","75"], answer: "55" },
+            { q: "Smallest number?", options: ["0.9","0.2","0.5","0.7"], answer: "0.2" },
+            { q: "3³?", options: ["9","27","18","36"], answer: "27" }
+        ],
+        Grammar: [ { q: "Identify the noun: “The cat sleeps.”", options: ["sleeps","the","cat","on"], answer: "cat" },
+            { q: "She ____ happy.", options: ["are","is","am","be"], answer: "is" },
+            { q: "Find the verb: “Birds fly.”", options: ["birds","fly","the","sky"], answer: "fly" },
+            { q: "Plural of 'child'", options: ["childs","childrens","childes","children"], answer: "children" },
+            { q: "The book is ___ the table.", options: ["on","at","by","up"], answer: "on" },
+            { q: "Opposite of 'big'", options: ["long","huge","small","short"], answer: "small" },
+            { q: "Identify adjective: 'The tall tree is green.'", options: ["tall","tree","is","green"], answer: "tall" },
+            { q: "Select correct spelling", options: ["becaus","beacuse","because","becouse"], answer: "because" },
+            { q: "Choose pronoun", options: ["dog","run","he","tall"], answer: "he" },
+            { q: "Identify adverb: 'She sings beautifully.'", options: ["sings","she","beautifully","song"], answer: "beautifully" },
+            { q: "Past tense of 'go'", options: ["goes","go","went","gone"], answer: "went" },
+            { q: "Correct sentence: He ___ playing", options: ["are","am","is","be"], answer: "is" },
+            { q: "Opposite of 'happy'", options: ["laugh","sad","tall","cold"], answer: "sad" },
+            { q: "Identify conjunction: 'I will play if it stops raining.'", options: ["play","stops","if","raining"], answer: "if" },
+            { q: "She ___ a doctor.", options: ["am","is","are","were"], answer: "is" },
+            { q: "'He runs fast.' — fast is:", options: ["adjective","verb","pronoun","adverb"], answer: "adverb" },
+            { q: "They ___ friends", options: ["is","are","am","be"], answer: "are" },
+            { q: "Identify preposition: 'The cat is under the chair.'", options: ["cat","under","chair","is"], answer: "under" },
+            { q: "Synonym of 'smart'", options: ["dull","clever","slow","late"], answer: "clever" },
+            { q: "Correct question form", options: ["Where you going?","Where are you going?","Where going you?","You going where?"], answer: "Where are you going?" }
+        ],
+        Reasoning: [            { q: "What comes next? 2,4,6,8, ___", options: ["9","10","12","14"], answer: "10" },
+            { q: "Find the odd one out: Apple, Banana, Chair, Grapes", options: ["Apple","Banana","Chair","Grapes"], answer: "Chair" },
+            { q: "If Monday is 1st day, 3rd day?", options: ["Saturday","Wednesday","Thursday","Sunday"], answer: "Wednesday" },
+            { q: "Which shape has 4 equal sides?", options: ["Rectangle","Square","Triangle","Circle"], answer: "Square" },
+            { q: "Find missing number: 10,20,30, ___", options: ["35","40","45","50"], answer: "40" },
+            { q: "If A=1,B=2..., F=?", options: ["4","5","6","7"], answer: "6" },
+            { q: "Analogy: Pen:Write :: Brush:___", options: ["paint","read","cut","speak"], answer: "paint" },
+            { q: "Which number is smallest?", options: ["14","12","19","21"], answer: "12" },
+            { q: "6→36,8→64,4→?", options: ["12","16","20","24"], answer: "16" },
+            { q: "Next in A,C,E,G, ___", options: ["H","J","I","K"], answer: "I" },
+            { q: "Tara is older than Riya, Riya older than Meena. Youngest?", options: ["Tara","Riya","Meena","All same"], answer: "Meena" },
+            { q: "Which is different? Cat, Dog, Cow, Car", options: ["Cat","Dog","Cow","Car"], answer: "Car" },
+            { q: "If today is Tuesday, yesterday was?", options: ["Sunday","Monday","Wednesday","Friday"], answer: "Monday" },
+            { q: "Missing shape: Square, Circle, Square, Circle, ___", options: ["Triangle","Circle","Square","Rectangle"], answer: "Triangle" },
+            { q: "7,14,21, ___", options: ["25","28","30","32"], answer: "28" },
+            { q: "Odd one out: 5,11,13,16", options: ["5","11","13","16"], answer: "16" },
+            { q: "Analogy: Fish:Water :: Bird:___", options: ["Land","Air","Tree","Food"], answer: "Air" },
+            { q: "What comes before 99?", options: ["89","90","98","100"], answer: "98" },
+            { q: "Complete pattern: ■ ▲ ■ ▲ ___", options: ["■","▲","●","♦"], answer: "■" },
+            { q: "Which number is greater? 29,32,25,27", options: ["29","32","25","27"], answer: "32" }],
+        Memory: [            // Combine Type A + Type B here (20 questions)
+            { q: "A boy named Arjun went to a park in the evening. He played on the swing and bought a balloon. He played on the swing and bought a balloon. He also saw a small puppy near the gate. Now answer: Boy's name in passage?", options: ["Aryan","Arjun","Amit","Ankit"], answer: "Arjun" },
+            { q: "When did he go to park?", options: ["Morning","Afternoon","Evening","Night"], answer: "Evening" },
+            { q: "What did he play on?", options: ["Slide","Swing","Seesaw","Rope"], answer: "Swing" },
+            { q: "What did he buy?", options: ["Ball","Chocolate","Balloon","Toy"], answer: "Balloon" },
+            { q: "What animal did he see?", options: ["Kitten","Puppy","Cow","Rabbit"], answer: "Puppy" },
+            { q: "Where was puppy?", options: ["Under tree","Near gate","On swing","In shop"], answer: "Near gate" },
+            { q: "Arjun went to?", options: ["Mall","Park","School","Market"], answer: "Park" },
+            { q: "Time of day mentioned?", options: ["Evening","Afternoon","Morning","Night"], answer: "Evening" },
+            { q: "Word showing bought something?", options: ["played","went","bought","saw"], answer: "bought" },
+            { q: "What did Arjun NOT do?", options: ["Played","Bought something","Saw animal","Ate food"], answer: "Ate food" },
+            { q: "Days in a week?", options: ["5","6","7","8"], answer: "7" },
+            { q: "Months in a year?", options: ["10","11","12","13"], answer: "12" },
+            { q: "Shape with 3 sides?", options: ["Circle","Triangle","Square","Rectangle"], answer: "Triangle" },
+            { q: "Hours in a day?", options: ["12","20","18","24"], answer: "24" },
+            { q: "Sky color?", options: ["Green","Blue","Red","Yellow"], answer: "Blue" },
+            { q: "Which animal gives milk?", options: ["Dog","Cow","Lion","Tiger"], answer: "Cow" },
+            { q: "Planet we live on?", options: ["Mars","Venus","Earth","Jupiter"], answer: "Earth" },
+            { q: "Letters in alphabet?", options: ["20","26","30","28"], answer: "26" },
+            { q: "Fingers humans have?", options: ["8","9","10","12"], answer: "10" },
+            { q: "Which one is fruit?", options: ["Potato","Tomato","Banana","Carrot"], answer: "Banana" }],
+        IQ: [             
+            { q: "3+3=6, 6+6=?", options: ["10","12","14","18"], answer: "12" },
+            { q: "Next: 5,10,15,20,?", options: ["22","25","27","30"], answer: "25" },
+            { q: "Missing: 2,6,12,20,?", options: ["24","30","32","42"], answer: "30" },
+            { q: "Most sides?", options: ["Triangle","Square","Pentagon","Circle"], answer: "Circle" },
+            { q: "Squares are rectangles, then?", options: ["All rectangles are squares","All squares are rectangles","No rectangles are squares","None"], answer: "All squares are rectangles" },
+            { q: "Middle number?", options: ["23","25","27","29"], answer: "25" },
+            { q: "Pattern: ●●○●●○ ___", options: ["●","○","●●","○○"], answer: "●" },
+            { q: "Which number is odd?", options: ["18","20","16","17"], answer: "17" },
+            { q: "Opposite of East?", options: ["West","North","South","NE"], answer: "West" },
+            { q: "a=1,z=26,c=?", options: ["2","3","5","7"], answer: "3" },
+            { q: "100 is 10 more than?", options: ["80","85","90","95"], answer: "90" },
+            { q: "Smallest?", options: ["0.7","0.2","0.9","0.4"], answer: "0.2" },
+            { q: "Figure with no straight sides?", options: ["Triangle","Rectangle","Square","Circle"], answer: "Circle" },
+            { q: "4×?=36", options: ["7","8","9","6"], answer: "9" },
+            { q: "Odd one out: Crow,Pigeon,Eagle,Tiger", options: ["Crow","Pigeon","Eagle","Tiger"], answer: "Tiger" },
+            { q: "Number between 40-50?", options: ["34","37","45","52"], answer: "45" },
+            { q: "9+8=?", options: ["17","18","19","20"], answer: "17" },
+            { q: "1h=60min,2h=?", options: ["30","90","120","150"], answer: "120" },
+            { q: "Shape with all sides equal?", options: ["Rectangle","Square","Triangle","Oval"], answer: "Square" },
+            { q: "Comes before Q?", options: ["O","P","R","S"], answer: "P" } ],
+        DecisionMaking: [             // Combine Type A + B here (20 questions)
+            { q: "Forgot homework, do?", options: ["Lie","Tell truth","Blame friend","Run away"], answer: "Tell truth" },
+            { q: "See classmate crying?", options: ["Make fun","Ignore","Ask help","Laugh"], answer: "Ask help" },
+            { q: "Find money on floor?", options: ["Keep","Give teacher","Throw","Hide"], answer: "Give teacher" },
+            { q: "Late for school?", options: ["Run","Explain calmly","Fight","Lie"], answer: "Explain calmly" },
+            { q: "Friend wants notes?", options: ["Refuse","Share politely","Tear notes","Hit"], answer: "Share politely" },
+            { q: "Someone pushes you?", options: ["Push back","Shout","Stay calm","Call police"], answer: "Stay calm" },
+            { q: "Don't understand homework?", options: ["Skip","Ask teacher","Cry","Sleep"], answer: "Ask teacher" },
+            { q: "Teacher enters class?", options: ["Sit","Stand respectfully","Shout","Run"], answer: "Stand respectfully" },
+            { q: "Younger child needs help?", options: ["Ignore","Help","Laugh","Shout"], answer: "Help" },
+            { q: "Friend lost pen?", options: ["Laugh","Help find","Ignore","Blame"], answer: "Help find" },
+            { q: "₹10, chocolates ₹5 each, buy?", options: ["1","2","3","4"], answer: "2" },
+            { q: "Safer?", options: ["Running road","Walk footpath","Play road","Stand traffic"], answer: "Walk footpath" },
+            { q: "Choice saves more time?", options: ["Do on time","Do late","Not do","Forget"], answer: "Do on time" },
+            { q: "Action avoids fights?", options: ["Shout","Listen","Push","Hit"], answer: "Listen" },
+            { q: "Keep things safe?", options: ["Leave anywhere","Lock","Throw","Forget"], answer: "Lock" },
+            { q: "Cross road?", options: ["Run anywhere","Zebra crossing","Close eyes","Jump"], answer: "Zebra crossing" },
+            { q: "Bottle leaks?", options: ["Throw","Tell parents","Drink all","Ignore"], answer: "Tell parents" },
+            { q: "Most important during exam?", options: ["Look around","Stay calm","Talk","Joke"], answer: "Stay calm" },
+            { q: "Friend is wrong?", options: ["Teach politely","Fight","Shout","Laugh"], answer: "Teach politely" },
+            { q: "Don't know answer?", options: ["Guess","Cheating","Leave","Ask friend"], answer: "Guess" } ],
+        Discipline: [  // Combine Type A + B (20 questions)
+            { q: "Reach school first thing?", options: ["Shout","Greet","Run","Fight"], answer: "Greet" },
+            { q: "In class, must?", options: ["Talk loudly","Listen","Sleep","Throw things"], answer: "Listen" },
+            { q: "Homework done?", options: ["Never","Late","On time","By someone else"], answer: "On time" },
+            { q: "In queue, must?", options: ["Push","Stand properly","Fight","Jump"], answer: "Stand properly" },
+            { q: "Desk must be?", options: ["Clean","Messy","Dirty","Sticky"], answer: "Clean" },
+            { q: "During national anthem?", options: ["Sit","Talk","Stand respectfully","Laugh"], answer: "Stand respectfully" },
+            { q: "Uniform should be?", options: ["Dirty","Torn","Proper","Missing"], answer: "Proper" },
+            { q: "Teacher explaining?", options: ["Listen","Chat","Sing","Throw paper"], answer: "Listen" },
+            { q: "School rules?", options: ["Broken","Followed","Ignored","Changed"], answer: "Followed" },
+            { q: "Lunch waste?", options: ["Thrown","Pocket","Dustbin","Left"], answer: "Dustbin" },
+            { q: "Books kept?", options: ["Floor","Bag","Bathroom","Dustbin"], answer: "Bag" },
+            { q: "Reach school?", options: ["Late","Anytime","On time","Never"], answer: "On time" },
+            { q: "Homework is for?", options: ["Practice","Time pass","Fighting","Cheating"], answer: "Practice" },
+            { q: "Speaking in class?", options: ["Shouting","Permission","Fighting","Jumping"], answer: "Permission" },
+            { q: "School bag should be?", options: ["Torn","Light organized","Heavy","Dirty"], answer: "Light organized" },
+            { q: "Food must be eaten?", options: ["Slowly","Quickly","Never","Throw"], answer: "Slowly" },
+            { q: "Proper sitting?", options: ["Lying","Standing","Sitting straight","Jumping"], answer: "Sitting straight" },
+            { q: "Must follow?", options: ["No rules","School rules","Wrong rules","Own rules"], answer: "School rules" },
+            { q: "Homework writing?", options: ["Neat","Messy","Invisible","Torn"], answer: "Neat" },
+            { q: "Shoes should be?", options: ["Dirty","Polished","Lost","Torn"], answer: "Polished" } ],
+        Personality: [  // Combine Type A + B (20 questions)
+            { q: "Like working?", options: ["Alone","Friends","Both","None"], answer: "Both" },
+            { q: "Happy when?", options: ["Helping others","Fighting","Hurting","Shouting"], answer: "Helping others" },
+            { q: "You are?", options: ["Honest","Dishonest","Angry","Careless"], answer: "Honest" },
+            { q: "Like to?", options: ["Learn","Ignore","Fight","Sleep"], answer: "Learn" },
+            { q: "Feel confident when?", options: ["Trying new","Hiding","Cheating","Crying"], answer: "Trying new" },
+            { q: "Prefer friends?", options: ["Kind","Rude","Angry","Violent"], answer: "Kind" },
+            { q: "Known as?", options: ["Helpful","Harmful","Lazy","Loud"], answer: "Helpful" },
+            { q: "Attitude mostly?", options: ["Positive","Negative","Angry","Confused"], answer: "Positive" },
+            { q: "Good at?", options: ["Sharing","Fighting","Lying","Hitting"], answer: "Sharing" },
+            { q: "Reaction to losing?", options: ["Cry","Stay calm","Fight","Break things"], answer: "Stay calm" },
+            { q: "Friend needs help drawing?", options: ["Laugh","Help","Ignore","Tear sheet"], answer: "Help" },
+            { q: "Someone compliments?", options: ["Thanks","So what","Shut up","Who cares"], answer: "Thanks" },
+            { q: "See someone alone?", options: ["Invite","Ignore","Tease","Fight"], answer: "Invite" },
+            { q: "Get low marks?", options: ["Give up","Try harder","Blame others","Tear notebook"], answer: "Try harder" },
+            { q: "Friend succeeds?", options: ["Celebrate","Jealous","Fight","Ignore"], answer: "Celebrate" },
+            { q: "Break something?", options: ["Hide","Tell truth","Blame","Run"], answer: "Tell truth" },
+            { q: "Teacher appreciates?", options: ["Smile","Shout","Ignore","Fight"], answer: "Smile" },
+            { q: "New classmate?", options: ["Welcome","Bully","Ignore","Push"], answer: "Welcome" },
+            { q: "Someone slow in class?", options: ["Help","Tease","Laugh","Shout"], answer: "Help" },
+            { q: "Feel nervous?", options: ["Quit","Try anyway","Fight","Cry"], answer: "Try anyway" } ]
+
+    },
+    "6": {
+        // Similar structure with questions for Class 6
+        Numeracy: [
+            {q:"What is 15 × 6?", options:["80","90","75","60"], ans:1},
+            {q:"What is 144 ÷ 12?", options:["10","11","12","13"], ans:2},
+            {q:"Which of the following is a prime number?", options:["21","29","39","49"], ans:1},
+            {q:"Find the value of 3³.", options:["9","18","27","81"], ans:2},
+            {q:"What is the LCM of 4 and 10?", options:["20","10","40","8"], ans:0},
+            {q:"Convert 0.75 into a fraction.", options:["3/4","1/2","1/4","2/3"], ans:0},
+            {q:"Perimeter of a rectangle of length 5 cm and breadth 8 cm is?", options:["13 cm","26 cm","40 cm","16 cm"], ans:1},
+            {q:"What is 20% of 150?", options:["20","25","30","35"], ans:2},
+            {q:"What is the HCF of 18 and 24?", options:["3","6","9","12"], ans:1},
+            {q:"Which number is divisible by 9?", options:["54","52","58","56"], ans:0},
+            {q:"What is the square root of 81?", options:["8","9","10","11"], ans:1},
+            {q:"Solve: 45 + 55 − 30", options:["60","70","80","90"], ans:1},
+            {q:"1 kilometer equals how many meters?", options:["100","500","1000","1500"], ans:2},
+            {q:"What is the average of 4, 6 and 8?", options:["5","6","7","8"], ans:1},
+            {q:"Which is the smallest fraction?", options:["1/2","1/3","1/4","1/5"], ans:3},
+            {q:"What is the value of 7²?", options:["14","21","49","64"], ans:2},
+            {q:"Solve: x + 15 = 40", options:["15","20","25","30"], ans:2},
+            {q:"What is the area of a square with side 6 cm?", options:["12","24","36","48"], ans:2},
+            {q:"Convert 2.5 into fraction.", options:["5/2","2/5","25/10","1/5"], ans:0},
+            {q:"What is the cube of 4?", options:["16","32","64","128"], ans:1}],
+        Grammar: [
+            {q:"Choose the correct sentence.", options:["She go to school.","She goes to school.","She going to school.","She gone to school."], ans:1},
+            {q:"Fill in the blank: I ___ a book.", options:["has","have","had","having"], ans:1},
+            {q:"Select the noun.", options:["Run","Beautiful","Apple","Quickly"], ans:2},
+            {q:"Choose the pronoun.", options:["Ravi","School","He","Table"], ans:2},
+            {q:"Past tense of 'eat' is?", options:["Eated","Ate","Eating","Eats"], ans:1},
+            {q:"Which is an adjective?", options:["Happy","Run","Quickly","Jump"], ans:0},
+            {q:"Fill in the blank: This is ___ umbrella.", options:["a","an","the","no article"], ans:1},
+            {q:"Opposite of 'big' is?", options:["Small","Tall","Wide","Long"], ans:0},
+            {q:"Plural of 'child' is?", options:["Childs","Children","Childes","Childrens"], ans:1},
+            {q:"Which is a verb?", options:["Swim","River","Blue","Chair"], ans:0},
+            {q:"Fill in the blank: She is ___ than me.", options:["tall","taller","tallest","more tall"], ans:1},
+            {q:"Choose the correct preposition: The cat is ___ the table.", options:["in","on","at","to"], ans:1},
+            {q:"Synonym of 'happy' is?", options:["Sad","Angry","Joyful","Tired"], ans:2},
+            {q:"Choose the correct question.", options:["Where you are going?","Where are you going?","Where going you?","You are going where?"], ans:1},
+            {q:"Fill in the blank: They ___ playing.", options:["is","are","am","was"], ans:1},
+            {q:"Which is a conjunction?", options:["And","Run","Quick","Book"], ans:0},
+            {q:"Past tense of 'go' is?", options:["Goed","Went","Gone","Going"], ans:1},
+            {q:"Choose the correct sentence.", options:["He have a car.","He has a car.","He having a car.","He had a car now."], ans:1},
+            {q:"Fill in the blank: ___ is my best friend.", options:["He","Him","His","Her"], ans:0},
+            {q:"Which is an adverb?", options:["Slowly","Blue","Dog","Happy"], ans:0}],
+        Reasoning : [
+            {q:"What comes next? 2, 4, 6, 8, ?", options:["9","10","11","12"], ans:1},
+            {q:"Find the odd one out.", options:["Dog","Cat","Cow","Car"], ans:3},
+            {q:"If today is Monday, what will it be after 3 days?", options:["Tuesday","Wednesday","Thursday","Friday"], ans:2},
+            {q:"Which number is the smallest?", options:["15","9","12","20"], ans:1},
+            {q:"A is taller than B and B is taller than C. Who is tallest?", options:["A","B","C","Cannot say"], ans:0},
+            {q:"Find the missing number: 5, 10, 15, ?", options:["18","20","25","30"], ans:1},
+            {q:"Pen is to write as brush is to?", options:["Read","Paint","Cut","Play"], ans:1},
+            {q:"Which shape has 4 equal sides?", options:["Rectangle","Square","Triangle","Circle"], ans:1},
+            {q:"Find the odd number.", options:["3","5","7","8"], ans:3},
+            {q:"Next letter: A, C, E, ?", options:["F","G","H","I"], ans:1},
+            {q:"If 1=One, 2=Two, then 3=?", options:["Three","Four","Five","Six"], ans:0},
+            {q:"Which is different?", options:["Rose","Lotus","Lily","Table"], ans:3},
+            {q:"How many days are there in a week?", options:["5","6","7","8"], ans:2},
+            {q:"Which is heavier?", options:["Feather","Paper","Stone","Leaf"], ans:2},
+            {q:"Complete: 10, 20, 30, ?", options:["35","40","45","50"], ans:1},
+            {q:"Fish lives in?", options:["Air","Water","Soil","Tree"], ans:1},
+            {q:"If you face east and turn right, which direction now?", options:["North","South","West","East"], ans:1},
+            {q:"Which number is even?", options:["11","13","15","18"], ans:3},
+            {q:"Find the odd one.", options:["Sun","Moon","Star","Ball"], ans:3},
+            {q:"What comes before 50?", options:["48","49","51","52"], ans:1}],
+        Memory : [
+            {q:"Remember: Apple, Ball, Cat. Which word was second?", options:["Apple","Ball","Cat","None"], ans:1},
+            {q:"Remember the number: 472. What is the last digit?", options:["2","4","7","9"], ans:0},
+            {q:"Remember: Red, Blue, Green. Which color was first?", options:["Blue","Green","Red","Yellow"], ans:2},
+            {q:"Remember: Dog, Fish, Bird. Which was last?", options:["Dog","Fish","Bird","Cat"], ans:2},
+            {q:"Remember number: 583. What is the first digit?", options:["5","8","3","2"], ans:0},
+            {q:"Remember: Sun, Moon, Star. Which is in the middle?", options:["Sun","Moon","Star","Sky"], ans:1},
+            {q:"Remember: Pen, Book, Bag. Which word was second?", options:["Pen","Bag","Book","Box"], ans:2},
+            {q:"Remember number: 916. What is the middle digit?", options:["1","6","9","5"], ans:0},
+            {q:"Remember: Mango, Apple, Banana. Which came last?", options:["Apple","Banana","Mango","Grapes"], ans:1},
+            {q:"Remember: Car, Bus, Train. Which came first?", options:["Train","Bus","Car","Bike"], ans:2},
+            {q:"Remember number: 204. What is the first digit?", options:["2","0","4","5"], ans:0},
+            {q:"Remember: Chair, Table, Bed. Which is second?", options:["Bed","Chair","Table","Sofa"], ans:2},
+            {q:"Remember: Tiger, Lion, Bear. Which is last?", options:["Tiger","Bear","Lion","Wolf"], ans:1},
+            {q:"Remember number: 639. What is the last digit?", options:["6","3","9","1"], ans:2},
+            {q:"Remember: Red, Yellow, Blue. Which is second?", options:["Blue","Red","Yellow","Green"], ans:2},
+            {q:"Remember: Cup, Plate, Spoon. Which is first?", options:["Cup","Spoon","Plate","Glass"], ans:0},
+            {q:"Remember number: 751. What is the middle digit?", options:["5","7","1","3"], ans:0},
+            {q:"Remember: Pencil, Eraser, Scale. Which is last?", options:["Scale","Pencil","Eraser","Sharpener"], ans:0},
+            {q:"Remember: Cow, Goat, Sheep. Which is first?", options:["Sheep","Goat","Cow","Dog"], ans:2},
+            {q:"Remember number: 468. What is the middle digit?", options:["4","6","8","2"], ans:1}],
+        IQ: [
+            {q:"Which number comes next in the series: 2, 4, 6, 8, ?", options:["9","10","11","12"], ans:1},
+            {q:"If CAT = 3 letters, DOG = 3 letters, then ELEPHANT = ?", options:["5","6","7","8"], ans:3},
+            {q:"Which is different?", options:["Apple","Banana","Carrot","Mango"], ans:2},
+            {q:"If 5 + 3 = 8 and 6 + 4 = 10, then 7 + 5 = ?", options:["11","12","13","14"], ans:1},
+            {q:"Find the odd one out.", options:["Circle","Square","Triangle","Apple"], ans:3},
+            {q:"If today is Monday, what day comes after 3 days?", options:["Tuesday","Thursday","Friday","Sunday"], ans:1},
+            {q:"Which is the smallest number?", options:["9","3","7","5"], ans:1},
+            {q:"Book is to Reading as Fork is to?", options:["Writing","Eating","Cooking","Cutting"], ans:1},
+            {q:"What comes next: A, C, E, G, ?", options:["H","I","J","K"], ans:1},
+            {q:"Which number is missing: 1, 3, 5, ?, 9", options:["6","7","8","4"], ans:1},
+            {q:"If you have 2 apples and get 3 more, how many apples?", options:["4","5","6","3"], ans:1},
+            {q:"Which is heavier?", options:["Feather","Stone","Paper","Leaf"], ans:1},
+            {q:"If SUN rises in the East, it sets in the?", options:["North","South","West","East"], ans:2},
+            {q:"Which shape has 4 equal sides?", options:["Circle","Triangle","Square","Oval"], ans:2},
+            {q:"What comes next: 10, 20, 30, ?", options:["35","40","45","50"], ans:1},
+            {q:"Which is not a fruit?", options:["Mango","Potato","Apple","Grapes"], ans:1},
+            {q:"If 1=One, 2=Two, then 3=?", options:["Three","Four","Five","Six"], ans:0},
+            {q:"How many days are there in a week?", options:["5","6","7","8"], ans:2},
+            {q:"Which is fastest?", options:["Turtle","Car","Bicycle","Man"], ans:1},
+            {q:"If you sleep at night, you are awake in the?", options:["Morning","Night","Evening","Midnight"], ans:0}],
+        DecisionMaking: [
+            {q:"If it is raining, what should you carry?", options:["Sunglasses","Umbrella","Book","Shoes"], ans:1},
+            {q:"You are hungry at school. What is the best decision?", options:["Skip lunch","Eat your tiffin","Throw food","Sleep"], ans:1},
+            {q:"If the traffic light is red, what should you do?", options:["Run","Stop","Jump","Drive fast"], ans:1},
+            {q:"Your exam is tomorrow. What should you do tonight?", options:["Play all day","Study","Ignore it","Fight"], ans:1},
+            {q:"If you feel sick, what is the right decision?", options:["Hide it","Tell parents/teacher","Run outside","Shout"], ans:1},
+            {q:"You found a lost wallet in class. What should you do?", options:["Keep it","Give to teacher","Throw it","Hide it"], ans:1},
+            {q:"If water is spilling on the floor, what should you do?", options:["Ignore","Clean it","Play in it","Run"], ans:1},
+            {q:"Your friend is sad. What should you do?", options:["Laugh","Help them","Leave them","Shout"], ans:1},
+            {q:"If you have homework and TV time, what first?", options:["Watch TV","Do homework","Sleep","Play"], ans:1},
+            {q:"If a stranger offers candy, what should you do?", options:["Take it","Refuse and tell adult","Hide","Eat"], ans:1},
+            {q:"You are late for school. What is best?", options:["Walk slowly","Rush safely","Skip school","Sleep"], ans:1},
+            {q:"If your room is messy, what should you do?", options:["Ignore","Clean it","Blame others","Hide things"], ans:1},
+            {q:"If you don’t understand a lesson?", options:["Stay quiet","Ask teacher","Sleep","Leave"], ans:1},
+            {q:"If you see bullying?", options:["Join","Report to teacher","Ignore","Laugh"], ans:1},
+            {q:"If you feel thirsty?", options:["Drink water","Eat candy","Run","Sleep"], ans:0},
+            {q:"If it is very hot outside?", options:["Wear sweater","Drink water","Sit in sun","Run"], ans:1},
+            {q:"If your friend needs help in homework?", options:["Help them","Ignore","Fight","Copy"], ans:0},
+            {q:"If you break something at home?", options:["Hide it","Tell truth","Blame others","Run"], ans:1},
+            {q:"If you have a test today?", options:["Prepare","Ignore","Play","Sleep"], ans:0},
+            {q:"If you see garbage on the ground?", options:["Throw more","Pick and bin it","Ignore","Kick it"], ans:1}],
+        Discipline: [
+            {q:"What shows good discipline in class?", options:["Talking loudly","Listening to teacher","Running around","Throwing paper"], ans:1},
+                {q:"If the teacher is speaking, you should?", options:["Interrupt","Listen quietly","Shout","Sleep"], ans:1},
+            {q:"Completing homework on time shows?", options:["Laziness","Discipline","Anger","Fun"], ans:1},
+            {q:"Standing in a queue shows?", options:["Discipline","Fighting","Noise","Hurry"], ans:0},
+            {q:"If school starts at 8 AM, you should arrive?", options:["Late","On time","Anytime","After break"], ans:1},
+            {q:"Keeping your desk clean shows?", options:["Carelessness","Discipline","Rudeness","Anger"], ans:1},
+            {q:"Following school rules is?", options:["Bad","Important","Funny","Useless"], ans:1},
+            {q:"If told to be quiet, you should?", options:["Talk more","Be quiet","Laugh","Sing"], ans:1},
+            {q:"Respecting elders shows?", options:["Discipline","Weakness","Fear","Noise"], ans:0},
+            {q:"Finishing work before play shows?", options:["Discipline","Anger","Sadness","Fear"], ans:0},
+            {q:"Wearing proper uniform shows?", options:["Discipline","Style","Anger","Fun"], ans:0},
+            {q:"Waiting for your turn shows?", options:["Discipline","Impatience","Rudeness","Noise"], ans:0},
+            {q:"Speaking politely shows?", options:["Discipline","Anger","Laziness","Fear"], ans:0},
+            {q:"Bringing books daily shows?", options:["Discipline","Forgetfulness","Carelessness","Fun"], ans:0},
+            {q:"Obeying parents shows?", options:["Discipline","Weakness","Sadness","Fear"], ans:0},
+            {q:"Not cheating in test shows?", options:["Honesty & discipline","Smartness","Fear","Fun"], ans:0},
+            {q:"Keeping promises shows?", options:["Discipline","Forgetfulness","Anger","Noise"], ans:0},
+            {q:"Walking calmly in corridor shows?", options:["Discipline","Hurry","Fear","Excitement"], ans:0},
+            {q:"Raising hand before speaking shows?", options:["Discipline","Noise","Fun","Hurry"], ans:0},
+            {q:"Helping keep classroom tidy shows?", options:["Discipline","Laziness","Anger","Fun"], ans:0}],
+        Personality: [
+            {q:"A kind person usually?", options:["Helps others","Fights","Shouts","Ignores"], ans:0},
+            {q:"Saying 'thank you' shows?", options:["Good personality","Rudeness","Anger","Fear"], ans:0},
+            {q:"A confident child will?", options:["Try new things","Hide always","Cry","Run away"], ans:0},
+            {q:"Sharing with friends shows?", options:["Caring nature","Selfishness","Anger","Fear"], ans:0},
+            {q:"Smiling and greeting shows?", options:["Friendly personality","Rudeness","Sadness","Anger"], ans:0},
+            {q:"Listening to others shows?", options:["Respect","Rudeness","Anger","Noise"], ans:0},
+            {q:"Telling the truth shows?", options:["Honesty","Fear","Weakness","Fun"], ans:0},
+            {q:"Helping a classmate shows?", options:["Kindness","Anger","Pride","Fear"], ans:0},
+            {q:"Being polite shows?", options:["Good manners","Rudeness","Anger","Fun"], ans:0},
+            {q:"Working hard shows?", options:["Good personality","Laziness","Fear","Anger"], ans:0},
+            {q:"Encouraging friends shows?", options:["Supportive nature","Jealousy","Anger","Fear"], ans:0},
+            {q:"Saying sorry when wrong shows?", options:["Good character","Weakness","Fear","Fun"], ans:0},
+            {q:"Being patient shows?", options:["Strong personality","Anger","Rudeness","Noise"], ans:0},
+            {q:"Respecting everyone shows?", options:["Good values","Fear","Anger","Fun"], ans:0},
+            {q:"Trying again after failure shows?", options:["Determination","Fear","Sadness","Anger"], ans:0},
+            {q:"Speaking kindly shows?", options:["Good personality","Rudeness","Fear","Anger"], ans:0},
+            {q:"Being helpful shows?", options:["Caring personality","Selfishness","Anger","Fear"], ans:0},
+            {q:"Staying calm shows?", options:["Maturity","Anger","Fear","Noise"], ans:0},
+            {q:"Welcoming new students shows?", options:["Friendliness","Rudeness","Fear","Anger"], ans:0},
+            {q:"Being fair shows?", options:["Good character","Bias","Anger","Fear"], ans:0}]
+    },
+    "7" : {
+        Numeracy: [
+{q:"What is 18 × 7?", options:["112","126","108","120"], ans:1},
+{q:"What is 225 ÷ 15?", options:["10","12","15","18"], ans:2},
+{q:"Find 25% of 200.", options:["25","40","50","60"], ans:2},
+{q:"Square of 14 is?", options:["196","144","156","176"], ans:0},
+{q:"Cube of 5 is?", options:["25","75","125","150"], ans:2},
+{q:"LCM of 6 and 9?", options:["18","27","36","12"], ans:0},
+{q:"HCF of 20 and 30?", options:["5","10","15","20"], ans:1},
+{q:"Perimeter of square (side 9 cm)?", options:["18","27","36","45"], ans:2},
+{q:"0.5 as fraction?", options:["1/2","1/3","2/5","3/4"], ans:0},
+{q:"Average of 5,10,15?", options:["5","10","15","12"], ans:1},
+{q:"7² = ?", options:["14","49","28","36"], ans:1},
+{q:"Solve: 60−25+10", options:["35","45","40","30"], ans:1},
+{q:"1 km = ?", options:["100 m","500 m","1000 m","1500 m"], ans:2},
+{q:"Area of rectangle 8×5?", options:["30","40","45","50"], ans:1},
+{q:"Prime number?", options:["27","39","41","49"], ans:2},
+{q:"3/4 of 20?", options:["10","12","15","18"], ans:2},
+{q:"Value of 9³?", options:["81","243","729","656"], ans:2},
+{q:"Solve x+12=30", options:["12","18","20","15"], ans:1},
+{q:"Smallest fraction?", options:["2/3","3/5","1/2","1/4"], ans:3},
+{q:"20% of 90?", options:["10","15","18","20"], ans:2}
+],
+
+Grammar: [
+{q:"Choose noun:", options:["Run","Happiness","Quickly","Blue"], ans:1},
+{q:"Past tense of go?", options:["Goed","Went","Gone","Going"], ans:1},
+{q:"Adjective in sentence: 'She has a red bag'", options:["She","Bag","Red","Has"], ans:2},
+{q:"Plural of child?", options:["Childs","Children","Childes","Childrens"], ans:1},
+{q:"Opposite of 'early'?", options:["Late","Fast","Soon","Quick"], ans:0},
+{q:"Correct article: ___ apple", options:["A","An","The","No"], ans:1},
+{q:"Pronoun in: Ram lost his pen", options:["Ram","Pen","His","Lost"], ans:2},
+{q:"Synonym of happy?", options:["Sad","Joyful","Angry","Tired"], ans:1},
+{q:"Verb in: Birds fly", options:["Birds","Fly","Sky","High"], ans:1},
+{q:"Correct spelling?", options:["Recieve","Receive","Receeve","Receve"], ans:1},
+{q:"Antonym of big?", options:["Large","Huge","Small","Wide"], ans:2},
+{q:"Future tense of eat?", options:["Ate","Eats","Will eat","Eating"], ans:2},
+{q:"Preposition: Book is ___ table", options:["In","On","At","By"], ans:1},
+{q:"Collective noun for fish?", options:["Group","School","Herd","Pack"], ans:1},
+{q:"Question mark used for?", options:["Order","Statement","Question","Wish"], ans:2},
+{q:"Adverb in: He runs fast", options:["He","Runs","Fast","None"], ans:2},
+{q:"Comparative of tall?", options:["Taller","Tallest","More tall","Tall"], ans:0},
+{q:"Sentence type: 'Close the door'", options:["Question","Command","Wish","Statement"], ans:1},
+{q:"Interjection shows?", options:["Action","Feeling","Naming","Joining"], ans:1},
+{q:"Correct: She ___ playing", options:["Is","Are","Am","Be"], ans:0}
+],
+
+Reasoning: [
+{q:"Next: 2,4,6,8,?", options:["9","10","12","11"], ans:1},
+{q:"Odd one out?", options:["Dog","Cat","Lion","Car"], ans:3},
+{q:"If A=1,B=2 then C=?", options:["1","2","3","4"], ans:2},
+{q:"Mirror of LEFT?", options:["TFEL","LEFT","FLET","TELF"], ans:0},
+{q:"5+3×2?", options:["16","11","10","13"], ans:1},
+{q:"Day after Monday?", options:["Tuesday","Sunday","Friday","Saturday"], ans:0},
+{q:"12,24,36,?", options:["42","48","40","50"], ans:1},
+{q:"Bird is to sky as fish is to?", options:["Water","Land","Nest","Tree"], ans:0},
+{q:"Odd number?", options:["11","13","15","18"], ans:3},
+{q:"If 2→4 then 3→?", options:["6","9","5","8"], ans:0},
+{q:"Next: A,C,E,?", options:["F","G","H","I"], ans:1},
+{q:"Which is smallest?", options:["0.5","0.25","0.75","0.6"], ans:1},
+{q:"Clock has ___ hours", options:["10","12","24","60"], ans:1},
+{q:"Triangle sides?", options:["2","3","4","5"], ans:1},
+{q:"If today is Friday, tomorrow?", options:["Sat","Sun","Mon","Thu"], ans:0},
+{q:"1 dozen = ?", options:["10","11","12","13"], ans:2},
+{q:"Odd letter: A,E,I,O,B", options:["A","E","I","B"], ans:3},
+{q:"Opposite direction of north?", options:["South","East","West","Up"], ans:0},
+{q:"5²=?", options:["10","20","25","15"], ans:2},
+{q:"Half of 50?", options:["20","25","30","15"], ans:1}
+],
+
+Memory: [
+{q:"Remember: Sun–Moon–Star. What was 2nd?", options:["Sun","Moon","Star","None"], ans:1},
+{q:"Recall: 3,7,9. Last number?", options:["3","7","9","6"], ans:2},
+{q:"Color of grass?", options:["Blue","Green","Red","Yellow"], ans:1},
+{q:"How many days in week?", options:["5","6","7","8"], ans:2},
+{q:"Remember CAT–DOG. First?", options:["Dog","Cat","Both","None"], ans:1},
+{q:"Capital of India?", options:["Delhi","Mumbai","Chennai","Kolkata"], ans:0},
+{q:"How many letters in 'BOOK'?", options:["2","3","4","5"], ans:2},
+{q:"Seasons in year?", options:["2","3","4","5"], ans:2},
+{q:"Remember 5,10,15. Middle?", options:["5","10","15","20"], ans:1},
+{q:"Rainbow colors?", options:["5","6","7","8"], ans:2},
+{q:"How many months?", options:["10","11","12","13"], ans:2},
+{q:"National animal India?", options:["Lion","Tiger","Elephant","Deer"], ans:1},
+{q:"Wheels on car?", options:["2","3","4","5"], ans:2},
+{q:"Remember PEN–BOX. Second?", options:["Pen","Box","Both","None"], ans:1},
+{q:"How many eyes?", options:["1","2","3","4"], ans:1},
+{q:"Alphabet letters?", options:["24","25","26","27"], ans:2},
+{q:"Primary colors?", options:["2","3","4","5"], ans:1},
+{q:"Days in Feb (normal)?", options:["28","29","30","31"], ans:0},
+{q:"1 week = ?", options:["5","6","7","8"], ans:2},
+{q:"1 year months?", options:["10","11","12","13"], ans:2}
+],
+
+IQ: [
+{q:"Odd one: 2,3,5,9", options:["2","3","5","9"], ans:3},
+{q:"Next: 1,4,9,?", options:["12","16","18","20"], ans:1},
+{q:"Water is to drink as food is to?", options:["Eat","Cook","Buy","Serve"], ans:0},
+{q:"If all cats are animals?", options:["True","False","Maybe","None"], ans:0},
+{q:"Shape with 4 sides?", options:["Circle","Triangle","Square","Line"], ans:2},
+{q:"Half of 100?", options:["25","50","75","40"], ans:1},
+{q:"Next letter: B,D,F,?", options:["H","I","J","G"], ans:0},
+{q:"Which is heavier?", options:["Feather","Stone","Paper","Leaf"], ans:1},
+{q:"5+5÷5=?", options:["2","6","10","5"], ans:1},
+{q:"If 10→20 then 5→?", options:["10","15","20","25"], ans:0},
+{q:"Largest number?", options:["12","21","19","15"], ans:1},
+{q:"Odd: Apple,Banana,Carrot,Potato", options:["Apple","Banana","Carrot","Potato"], ans:0},
+{q:"Day before Sunday?", options:["Sat","Mon","Fri","Thu"], ans:0},
+{q:"How many legs spider?", options:["6","8","10","12"], ans:1},
+{q:"Triangle angles sum?", options:["90","180","270","360"], ans:1},
+{q:"Which flies?", options:["Dog","Bird","Fish","Cow"], ans:1},
+{q:"Even number?", options:["11","13","14","15"], ans:2},
+{q:"Smallest?", options:["1","0","5","2"], ans:1},
+{q:"1+2+3=?", options:["5","6","7","8"], ans:1},
+{q:"Next: 10,20,30,?", options:["35","40","45","50"], ans:1}
+],
+
+DecisionMaking: [
+{q:"You drop litter. What to do?", options:["Leave","Pick up","Kick","Ignore"], ans:1},
+{q:"Friend is sad?", options:["Laugh","Help","Ignore","Shout"], ans:1},
+{q:"Exam tomorrow?", options:["Play","Study","Sleep","Watch TV"], ans:1},
+{q:"See bullying?", options:["Join","Stop it","Ignore","Laugh"], ans:1},
+{q:"Lose book?", options:["Hide","Tell teacher","Cry","Blame"], ans:1},
+{q:"Late for school?", options:["Run safely","Skip","Sleep","Hide"], ans:0},
+{q:"Homework not done?", options:["Lie","Tell truth","Skip","Copy"], ans:1},
+{q:"Found wallet?", options:["Keep","Return","Hide","Throw"], ans:1},
+{q:"Group work?", options:["Help","Sit idle","Fight","Leave"], ans:0},
+{q:"Hungry friend?", options:["Share","Ignore","Tease","Laugh"], ans:0},
+{q:"Cross road?", options:["Run","Look both sides","Close eyes","Jump"], ans:1},
+{q:"Class rule broken?", options:["Hide","Inform","Laugh","Join"], ans:1},
+{q:"Extra time?", options:["Study","Waste","Fight","Sleep"], ans:0},
+{q:"New student?", options:["Welcome","Ignore","Laugh","Tease"], ans:0},
+{q:"Library?", options:["Be quiet","Shout","Run","Play"], ans:0},
+{q:"Angry?", options:["Calm","Shout","Fight","Cry"], ans:0},
+{q:"Team game?", options:["Cooperate","Fight","Quit","Cheat"], ans:0},
+{q:"Test fail?", options:["Try again","Quit","Cry","Blame"], ans:0},
+{q:"Lost item?", options:["Search","Ignore","Cry","Blame"], ans:0},
+{q:"See trash?", options:["Pick","Ignore","Kick","Laugh"], ans:0}
+],
+
+Discipline: [
+{q:"Good discipline means?", options:["Obey rules","Break rules","Fight","Shout"], ans:0},
+{q:"Class behavior?", options:["Quiet","Loud","Run","Throw"], ans:0},
+{q:"Homework time?", options:["On time","Late","Never","Copy"], ans:0},
+{q:"Queue?", options:["Push","Wait","Fight","Shout"], ans:1},
+{q:"Uniform?", options:["Proper","Dirty","Torn","None"], ans:0},
+{q:"Teacher speaking?", options:["Listen","Talk","Laugh","Play"], ans:0},
+{q:"School property?", options:["Care","Damage","Draw","Throw"], ans:0},
+{q:"Rules?", options:["Follow","Break","Ignore","Laugh"], ans:0},
+{q:"Respect elders?", options:["Yes","No","Maybe","Rare"], ans:0},
+{q:"Cheating?", options:["Wrong","Right","Smart","Fun"], ans:0},
+{q:"Punctuality?", options:["Good","Bad","Funny","None"], ans:0},
+{q:"Desk clean?", options:["Yes","No","Dirty","Messy"], ans:0},
+{q:"Raise hand?", options:["Yes","No","Shout","Jump"], ans:0},
+{q:"Library?", options:["Silent","Loud","Run","Play"], ans:0},
+{q:"Corridor walk?", options:["Calm","Run","Jump","Push"], ans:0},
+{q:"Bring books?", options:["Daily","Never","Rare","Late"], ans:0},
+{q:"Promise?", options:["Keep","Break","Forget","Ignore"], ans:0},
+{q:"Respect friends?", options:["Yes","No","Sometimes","Rare"], ans:0},
+{q:"Finish work first?", options:["Yes","No","Play","Sleep"], ans:0},
+{q:"Follow schedule?", options:["Yes","No","Maybe","Rare"], ans:0}
+],
+
+Personality: [
+{q:"Kind person?", options:["Helps","Hurts","Ignores","Shouts"], ans:0},
+{q:"Say thank you?", options:["Good","Bad","Funny","None"], ans:0},
+{q:"Confident child?", options:["Tries","Hides","Cries","Runs"], ans:0},
+{q:"Sharing shows?", options:["Caring","Selfish","Angry","Fear"], ans:0},
+{q:"Greeting others?", options:["Friendly","Rude","Sad","Angry"], ans:0},
+{q:"Listening shows?", options:["Respect","Rude","Angry","Noise"], ans:0},
+{q:"Truth shows?", options:["Honesty","Fear","Weak","Fun"], ans:0},
+{q:"Helping shows?", options:["Kind","Angry","Proud","Fear"], ans:0},
+{q:"Polite speech?", options:["Good","Bad","Angry","Fear"], ans:0},
+{q:"Hard work?", options:["Good","Lazy","Fear","Angry"], ans:0},
+{q:"Encourage?", options:["Support","Jealous","Angry","Fear"], ans:0},
+{q:"Say sorry?", options:["Good","Weak","Fear","Fun"], ans:0},
+{q:"Patience?", options:["Strong","Angry","Rude","Noise"], ans:0},
+{q:"Respect all?", options:["Good","Fear","Angry","Fun"], ans:0},
+{q:"Try again?", options:["Determined","Fear","Sad","Angry"], ans:0},
+{q:"Kind words?", options:["Good","Rude","Fear","Angry"], ans:0},
+{q:"Helpful?", options:["Caring","Selfish","Angry","Fear"], ans:0},
+{q:"Stay calm?", options:["Mature","Angry","Fear","Noise"], ans:0},
+{q:"Welcome others?", options:["Friendly","Rude","Fear","Angry"], ans:0},
+{q:"Fairness?", options:["Good","Bias","Angry","Fear"], ans:0}]   
+},
+"8" :
+{
+    Numeracy: [
+{q:"What is 7/8 + 5/12?", options:["29/24","31/24","19/12","13/6"], ans:1},
+{q:"Solve: 144 ÷ (12×2)", options:["3","4","5","6"], ans:3},
+{q:"Find 18% of 350.", options:["54","63","72","81"], ans:1},
+{q:"√784 = ?", options:["26","27","28","29"], ans:2},
+{q:"Cube root of 512?", options:["6","7","8","9"], ans:2},
+{q:"LCM of 18 and 24?", options:["48","54","60","72"], ans:3},
+{q:"HCF of 96 and 144?", options:["24","36","48","12"], ans:1},
+{q:"Area of circle (r=7)?", options:["154","144","164","174"], ans:0},
+{q:"0.375 as fraction?", options:["3/8","5/8","7/8","1/8"], ans:0},
+{q:"Average of 12,18,30,40?", options:["20","22.5","25","27"], ans:2},
+{q:"15² − 10² = ?", options:["125","150","175","200"], ans:0},
+{q:"Solve: 3x=75", options:["15","20","25","30"], ans:2},
+{q:"2.5 km = ? m", options:["2000","2500","3000","3500"], ans:1},
+{q:"Prime number?", options:["91","97","87","93"], ans:1},
+{q:"3/7 of 140?", options:["40","50","60","70"], ans:2},
+{q:"(−12)² = ?", options:["−144","144","124","−124"], ans:1},
+{q:"If x−9=21, x=?", options:["28","30","32","34"], ans:1},
+{q:"Smallest fraction?", options:["5/6","7/9","4/5","3/7"], ans:3},
+{q:"35% of 260?", options:["81","91","101","111"], ans:1},
+{q:"Perimeter of rectangle l=12,b=9?", options:["38","40","42","44"], ans:2}
+],
+
+Grammar: [
+{q:"Abstract noun in: 'He showed bravery'", options:["He","Showed","Bravery","None"], ans:2},
+{q:"Past perfect of go?", options:["Went","Had gone","Gone","Going"], ans:1},
+{q:"Adjective in: 'A wise king'", options:["Wise","King","A","None"], ans:0},
+{q:"Plural of phenomenon?", options:["Phenomenons","Phenomena","Phenomenon","Phenomenas"], ans:1},
+{q:"Antonym of scarce?", options:["Rare","Few","Plenty","Short"], ans:2},
+{q:"Correct article: ___ MLA", options:["A","An","The","No"], ans:1},
+{q:"Relative pronoun?", options:["Which","Them","His","Who"], ans:0},
+{q:"Synonym of diligent?", options:["Lazy","Hardworking","Slow","Weak"], ans:1},
+{q:"Verb in passive: 'The work was done'", options:["Work","Was done","Done","Was"], ans:1},
+{q:"Correct spelling?", options:["Accommodate","Acommodate","Accomodate","Acomodate"], ans:0},
+{q:"Comparative of little (amount)?", options:["Less","Lesser","Least","More little"], ans:0},
+{q:"Future continuous of write?", options:["Will write","Will be writing","Shall wrote","Writing"], ans:1},
+{q:"Preposition: fond ___ music", options:["Of","In","At","On"], ans:0},
+{q:"Collective noun for sailors?", options:["Crew","Pack","Band","Fleet"], ans:0},
+{q:"Question tag: She is late, ___?", options:["Is she?","Isn't she?","Was she?","Isn't it?"], ans:1},
+{q:"Interjection for pain?", options:["Hurrah!","Alas!","Ouch!","Bravo!"], ans:2},
+{q:"Superlative of bad?", options:["Worst","Baddest","Most bad","Bad"], ans:0},
+{q:"Imperative sentence?", options:["Please close the door.","He closes door.","Door is closed.","Closing door."], ans:0},
+{q:"Conjunction showing contrast?", options:["And","But","So","Or"], ans:1},
+{q:"Opposite of expand?", options:["Grow","Stretch","Contract","Increase"], ans:2}
+],
+
+Reasoning: [
+{q:"Next: 5,11,17,?", options:["21","23","25","27"], ans:1},
+{q:"Odd one?", options:["Square","Triangle","Circle","Cube"], ans:3},
+{q:"If A=2, B=4, C=6 then Z=?", options:["50","52","54","56"], ans:2},
+{q:"Mirror of 321?", options:["123","321","132","231"], ans:0},
+{q:"8+6÷3×2=?", options:["12","16","20","10"], ans:0},
+{q:"Day after 2 days from Friday?", options:["Sun","Mon","Tue","Wed"], ans:0},
+{q:"3,9,27,?", options:["54","72","81","90"], ans:2},
+{q:"Doctor:hospital :: Teacher:?", options:["School","Book","Student","Class"], ans:0},
+{q:"Odd number?", options:["121","144","169","196"], ans:0},
+{q:"If 6→36 then 9→?", options:["54","63","72","81"], ans:3},
+{q:"Next: B,E,H,?", options:["J","K","L","M"], ans:1},
+{q:"Smallest?", options:["0.5","0.05","0.15","0.25"], ans:1},
+{q:"Leap year gap?", options:["2","3","4","5"], ans:2},
+{q:"Heptagon sides?", options:["6","7","8","9"], ans:1},
+{q:"If today Wed, 10 days later?", options:["Fri","Sat","Sun","Mon"], ans:1},
+{q:"3 dozen=?", options:["24","30","36","42"], ans:2},
+{q:"Odd: A,E,I,O,B", options:["A","E","I","B"], ans:3},
+{q:"Opposite north-east?", options:["South-west","South","West","East"], ans:0},
+{q:"9²=?", options:["72","81","90","99"], ans:1},
+{q:"Quarter of 200?", options:["25","40","50","60"], ans:2}
+],
+
+Memory: [
+{q:"Remember: 9,3,7,1. 3rd?", options:["9","3","7","1"], ans:2},
+{q:"Recall: Cat,Dog,Cow. 2nd?", options:["Cat","Dog","Cow","None"], ans:1},
+{q:"Indian flag middle color?", options:["Green","White","Blue","Saffron"], ans:1},
+{q:"Days in leap year?", options:["364","365","366","367"], ans:2},
+{q:"Last month?", options:["Oct","Nov","Dec","Jan"], ans:2},
+{q:"Capital of Japan?", options:["Seoul","Tokyo","Beijing","Bangkok"], ans:1},
+{q:"Letters in 'ELEPHANT'?", options:["6","7","8","9"], ans:2},
+{q:"Continents?", options:["5","6","7","8"], ans:2},
+{q:"Remember 5,10,15. First?", options:["5","10","15","20"], ans:0},
+{q:"Planets in solar system?", options:["7","8","9","10"], ans:1},
+{q:"Hours in 2 days?", options:["36","42","48","52"], ans:2},
+{q:"National animal India?", options:["Lion","Tiger","Elephant","Leopard"], ans:1},
+{q:"Triangle angles sum?", options:["90","180","270","360"], ans:1},
+{q:"3rd day of week?", options:["Tue","Wed","Thu","Fri"], ans:1},
+{q:"Nose count?", options:["1","2","3","4"], ans:0},
+{q:"Vowels?", options:["4","5","6","7"], ans:1},
+{q:"Primary colors?", options:["2","3","4","5"], ans:1},
+{q:"Oct has days?", options:["30","31","28","29"], ans:1},
+{q:"Minutes in hour?", options:["50","55","60","65"], ans:2},
+{q:"Weeks in year?", options:["50","51","52","53"], ans:2}
+],
+
+IQ: [
+{q:"Odd: 2,4,8,14", options:["2","4","8","14"], ans:3},
+{q:"Next: 4,16,64,?", options:["128","196","256","324"], ans:2},
+{q:"Bird:nest :: Bee:?", options:["Hive","Hole","Tree","Leaf"], ans:0},
+{q:"All squares rectangles?", options:["True","False","Maybe","None"], ans:0},
+{q:"Nonagon sides?", options:["7","8","9","10"], ans:2},
+{q:"25% of 480?", options:["100","110","120","130"], ans:2},
+{q:"Next: Z,W,T,?", options:["Q","R","S","P"], ans:0},
+{q:"Heavier 1kg cotton or iron?", options:["Cotton","Iron","Equal","None"], ans:2},
+{q:"18÷3+5=?", options:["9","10","11","12"], ans:2},
+{q:"If 8→64 then 12→?", options:["124","134","144","154"], ans:2},
+{q:"Largest?", options:["0.9","0.99","0.909","0.9099"], ans:1},
+{q:"Odd: Car,Bike,Bus,Ship", options:["Car","Bike","Bus","Ship"], ans:3},
+{q:"2 days before Friday?", options:["Wed","Tue","Mon","Sun"], ans:0},
+{q:"Insect legs?", options:["4","6","8","10"], ans:1},
+{q:"Right angle=?", options:["45°","60°","90°","120°"], ans:2},
+{q:"Fish can?", options:["Fly","Swim","Run","Jump"], ans:1},
+{q:"Even?", options:["31","37","44","59"], ans:2},
+{q:"Smallest integer?", options:["−1","0","1","2"], ans:0},
+{q:"7+8+9=?", options:["22","23","24","25"], ans:2},
+{q:"15,30,45,?", options:["55","60","65","70"], ans:1}
+],
+
+DecisionMaking: [
+{q:"Friend cheats in exam?", options:["Report","Join","Ignore","Copy"], ans:0},
+{q:"Online stranger asks info?", options:["Refuse","Share","Lie","Ignore"], ans:0},
+{q:"Group conflict?", options:["Mediate","Fight","Leave","Shout"], ans:0},
+{q:"Found wallet?", options:["Return","Keep","Hide","Spend"], ans:0},
+{q:"Late to class?", options:["Apologize","Lie","Skip","Hide"], ans:0},
+{q:"See bullying?", options:["Support victim","Join","Record","Ignore"], ans:0},
+{q:"Homework clash?", options:["Plan time","Skip","Copy","Excuse"], ans:0},
+{q:"Team credit?", options:["Share","Take all","Deny","Ignore"], ans:0},
+{q:"Angry message?", options:["Wait then reply","Reply angry","Post","Ignore"], ans:0},
+{q:"Rumor heard?", options:["Verify","Spread","Enjoy","Ignore"], ans:0},
+{q:"Lost book?", options:["Inform","Blame","Hide","Ignore"], ans:0},
+{q:"Extra money found?", options:["Return","Keep","Spend","Hide"], ans:0},
+{q:"Exam stress?", options:["Revise","Quit","Sleep","Panic"], ans:0},
+{q:"Hungry classmate?", options:["Share","Ignore","Tease","Refuse"], ans:0},
+{q:"Rule unclear?", options:["Ask","Guess","Ignore","Break"], ans:0},
+{q:"Group project?", options:["Coordinate","Avoid","Delay","Blame"], ans:0},
+{q:"Missed deadline?", options:["Admit","Lie","Hide","Excuse"], ans:0},
+{q:"Trash overflow?", options:["Inform staff","Ignore","Kick","Laugh"], ans:0},
+{q:"Low marks?", options:["Analyze mistakes","Quit","Blame","Ignore"], ans:0},
+{q:"Promise made?", options:["Fulfill","Delay","Forget","Deny"], ans:0}
+],
+
+Discipline: [
+{q:"Self-discipline means?", options:["Control actions","Control others","Punish","Force"], ans:0},
+{q:"During lecture?", options:["Take notes","Chat","Browse","Sleep"], ans:0},
+{q:"Assignment?", options:["Original work","Copy","Late","Skip"], ans:0},
+{q:"Queue ethics?", options:["Wait turn","Cut line","Push","Argue"], ans:0},
+{q:"Uniform code?", options:["Follow","Modify","Ignore","Avoid"], ans:0},
+{q:"Teacher feedback?", options:["Accept","Argue","Ignore","Mock"], ans:0},
+{q:"School property?", options:["Maintain","Damage","Write","Hide"], ans:0},
+{q:"Exam honesty?", options:["Essential","Optional","Useless","Flexible"], ans:0},
+{q:"Punctuality shows?", options:["Respect","Fear","Weakness","Pride"], ans:0},
+{q:"Workspace?", options:["Organized","Messy","Random","Shared"], ans:0},
+{q:"Speak in class?", options:["With permission","Shout","Interrupt","Whisper"], ans:0},
+{q:"Library conduct?", options:["Quiet focus","Chat","Call","Eat"], ans:0},
+{q:"Corridor movement?", options:["Walk left","Run","Push","Race"], ans:0},
+{q:"Bring materials?", options:["Prepared","Borrow","Share","Forget"], ans:0},
+{q:"Respect elders?", options:["Always","Sometimes","Rarely","Never"], ans:0},
+{q:"Task priority?", options:["Work then play","Play first","Delay","Skip"], ans:0},
+{q:"Routine?", options:["Consistent","Random","Rare","None"], ans:0},
+{q:"Commitment?", options:["Keep","Break","Change","Ignore"], ans:0},
+{q:"Peer respect?", options:["Equal","Selective","Biased","None"], ans:0},
+{q:"Rule violation?", options:["Avoid","Risk","Enjoy","Hide"], ans:0}
+],
+
+Personality: [
+{q:"Empathy means?", options:["Understand others","Control others","Ignore others","Judge others"], ans:0},
+{q:"Gratitude shows?", options:["Appreciation","Pride","Fear","Weakness"], ans:0},
+{q:"Confidence looks like?", options:["Trying despite fear","Showing off","Silence","Avoiding"], ans:0},
+{q:"Sharing reflects?", options:["Generosity","Loss","Weakness","Fear"], ans:0},
+{q:"Greeting others shows?", options:["Warmth","Formality","Fear","Habit"], ans:0},
+{q:"Active listening shows?", options:["Respect","Agreement","Silence","Obedience"], ans:0},
+{q:"Honesty builds?", options:["Trust","Fear","Fame","Power"], ans:0},
+{q:"Helping attitude?", options:["Compassion","Attention-seeking","Pride","Duty"], ans:0},
+{q:"Politeness creates?", options:["Goodwill","Distance","Fear","Silence"], ans:0},
+{q:"Hard work leads to?", options:["Growth","Stress only","Luck","Pressure"], ans:0},
+{q:"Encouraging others shows?", options:["Supportiveness","Control","Jealousy","Pity"], ans:0},
+{q:"Apologizing shows?", options:["Accountability","Weakness","Fear","Shame"], ans:0},
+{q:"Patience helps in?", options:["Better decisions","Delay only","Boredom","Weakness"], ans:0},
+{q:"Respect for diversity shows?", options:["Open-mindedness","Confusion","Fear","Pride"], ans:0},
+{q:"Trying again shows?", options:["Resilience","Stubbornness","Fear","Pressure"], ans:0},
+{q:"Kind words build?", options:["Relationships","Noise","Pity","Debt"], ans:0},
+{q:"Helping strangers shows?", options:["Altruism","Show-off","Risk","Pride"], ans:0},
+{q:"Staying calm shows?", options:["Emotional control","Silence","Fear","Weakness"], ans:0},
+{q:"Welcoming others shows?", options:["Inclusiveness","Neediness","Fear","Habit"], ans:0},
+{q:"Fairness means?", options:["Justice","Kindness only","Softness","Friendship"], ans:0}
+]
+},
+"9" : 
+{
+    Numeracy: [
+{q:"Solve: (5/6 + 7/8) × 24", options:["41","43","45","47"], ans:2},
+{q:"If 3x − 7 = 20, x = ?", options:["7","8","9","10"], ans:2},
+{q:"√(2025) = ?", options:["40","45","50","55"], ans:1},
+{q:"Factorize: x² − 5x − 24", options:["(x−8)(x+3)","(x−6)(x+4)","(x−3)(x+8)","(x−4)(x+6)"], ans:0},
+{q:"Area of circle (r=14)?", options:["616","600","620","640"], ans:0},
+{q:"SI on ₹2000 at 8% for 3 yrs?", options:["480","500","520","560"], ans:0},
+{q:"2⁵ × 2³ = ?", options:["2⁸","4⁸","8⁵","16³"], ans:0},
+{q:"If ratio 3:7, sum 200, larger?", options:["120","130","140","150"], ans:2},
+{q:"Volume cube (side 5)?", options:["100","115","125","150"], ans:2},
+{q:"0.125 × 64 = ?", options:["6","7","8","9"], ans:2},
+{q:"LCM of 18 & 24?", options:["48","54","60","72"], ans:3},
+{q:"15% of 360?", options:["45","50","54","60"], ans:2},
+{q:"Solve: 2x/3 = 14", options:["18","20","21","24"], ans:2},
+{q:"Perimeter semicircle r=7?", options:["36","40","44","48"], ans:2},
+{q:"(a+b)²=?", options:["a²+b²","a²+2ab+b²","2a²+b²","a²−b²"], ans:1},
+{q:"Speed if 120 km in 2 hrs?", options:["50","55","60","65"], ans:2},
+{q:"Mean of 5,7,9,11?", options:["7","8","9","10"], ans:1},
+{q:"x²=144, x>0", options:["10","11","12","13"], ans:2},
+{q:"Discount 10% on 500?", options:["40","45","50","55"], ans:2},
+{q:"√0.81=?", options:["0.7","0.8","0.9","1"], ans:2}
+],
+
+Grammar: [
+{q:"Choose correct: Each of the players ___ ready.", options:["are","were","is","have"], ans:2},
+{q:"Synonym of 'prudent'", options:["Careful","Brave","Quick","Lucky"], ans:0},
+{q:"Antonym of 'scarce'", options:["Rare","Limited","Abundant","Small"], ans:2},
+{q:"Passive: 'She wrote a letter'", options:["A letter was written by her","A letter is written","A letter wrote","Written letter"], ans:0},
+{q:"Gerund sentence?", options:["Reading helps","He reads","Read fast","Has read"], ans:0},
+{q:"Correct spelling?", options:["Accommodate","Acommodate","Acomodate","Acommodete"], ans:0},
+{q:"One word: fear of water", options:["Hydrophobia","Acrophobia","Claustrophobia","Xenophobia"], ans:0},
+{q:"Reported: He said, 'I am busy'", options:["He said he is busy","He said he was busy","He says busy","He told busy"], ans:1},
+{q:"Modal of advice?", options:["Must","Should","May","Can"], ans:1},
+{q:"Adverb in sentence?", options:["She sings beautifully","She is kind","She sings song","She voice sweet"], ans:0},
+{q:"Noun clause?", options:["I know what he did","Running fast","Blue sky","Very tall"], ans:0},
+{q:"Correct article: ___ honest man", options:["a","an","the","no article"], ans:1},
+{q:"Preposition: good ___ math", options:["at","in","on","for"], ans:0},
+{q:"Idiom: break the ice", options:["Start talk","Break glass","Feel cold","Get angry"], ans:0},
+{q:"Future tense?", options:["She will go","She goes","She went","She going"], ans:0},
+{q:"Conjunction?", options:["Although","Quickly","Happy","Book"], ans:0},
+{q:"Pronoun type 'who'?", options:["Relative","Personal","Reflexive","Demonstrative"], ans:0},
+{q:"Correct: Neither Ram nor Shyam ___ here", options:["are","were","is","have"], ans:2},
+{q:"Comparative of 'bad'", options:["Worse","Badder","Worst","More bad"], ans:0},
+{q:"Superlative of 'little'", options:["Less","Littlest","Least","More little"], ans:2}
+],
+
+Reasoning: [
+{q:"Next: 3,9,27,?", options:["54","72","81","90"], ans:2},
+{q:"Odd one: 8,27,64,100", options:["8","27","64","100"], ans:3},
+{q:"If PEN=35, BOOK=?", options:["43","47","57","63"], ans:2},
+{q:"Angle at 4:30?", options:["45°","60°","75°","90°"], ans:2},
+{q:"Series: AB, DE, GH,?", options:["JK","IJ","KL","MN"], ans:0},
+{q:"If 4 men do work in 6 days, 1 man?", options:["12","18","20","24"], ans:3},
+{q:"Mirror of 321?", options:["123","321","132","231"], ans:0},
+{q:"Odd: Rose,Lily,Jasmine,Apple", options:["Rose","Lily","Jasmine","Apple"], ans:3},
+{q:"Next: 5,10,20,40,?", options:["60","70","80","90"], ans:2},
+{q:"Opposite of 60°?", options:["60°","90°","120°","180°"], ans:2},
+{q:"Coding: CAT→DBU, DOG→?", options:["EPH","EPG","FPH","EOG"], ans:0},
+{q:"If North=South-East, East=?", options:["North","South-West","West","South"], ans:2},
+{q:"Day after 200 days from Monday?", options:["Mon","Tue","Wed","Thu"], ans:1},
+{q:"Odd: 2,3,5,9", options:["2","3","5","9"], ans:3},
+{q:"Next: 1,1,2,3,5,?", options:["6","7","8","9"], ans:2},
+{q:"A is taller than B, B than C. Who shortest?", options:["A","B","C","Can't say"], ans:2},
+{q:"Series: Z,X,V,?", options:["T","U","S","R"], ans:0},
+{q:"If 7→49, 9→81, 11→?", options:["111","121","131","141"], ans:1},
+{q:"Odd: Car,Bus,Bike,Train", options:["Car","Bus","Bike","Train"], ans:2},
+{q:"Clock 6:00 angle?", options:["90°","120°","150°","180°"], ans:3}
+],
+
+Memory: [
+{q:"Atomic number Carbon?", options:["4","5","6","7"], ans:2},
+{q:"Father of Algebra?", options:["Euclid","Aryabhata","Al-Khwarizmi","Newton"], ans:2},
+{q:"SI unit pressure?", options:["Pascal","Newton","Joule","Watt"], ans:0},
+{q:"Largest ocean?", options:["Atlantic","Indian","Pacific","Arctic"], ans:2},
+{q:"Speed of light (approx)?", options:["3×10⁸ m/s","3×10⁶","3×10⁵","3×10⁷"], ans:0},
+{q:"Human heart chambers?", options:["2","3","4","5"], ans:2},
+{q:"National animal India?", options:["Lion","Tiger","Elephant","Leopard"], ans:1},
+{q:"Boiling point water K?", options:["273","300","373","400"], ans:2},
+{q:"Currency Japan?", options:["Won","Yuan","Yen","Dollar"], ans:2},
+{q:"Longest bone?", options:["Femur","Tibia","Fibula","Humerus"], ans:0},
+{q:"Chemical symbol Na?", options:["Nitrogen","Sodium","Nickel","Neon"], ans:1},
+{q:"Largest desert?", options:["Sahara","Gobi","Thar","Kalahari"], ans:0},
+{q:"Photosynthesis occurs in?", options:["Root","Leaf","Stem","Flower"], ans:1},
+{q:"First satellite India?", options:["INSAT","Aryabhata","Rohini","Bhaskar"], ans:1},
+{q:"Unit of energy?", options:["Joule","Watt","Pascal","Volt"], ans:0},
+{q:"Total planets?", options:["7","8","9","10"], ans:1},
+{q:"Blood group universal donor?", options:["A","B","AB","O−"], ans:3},
+{q:"Metal liquid at room temp?", options:["Iron","Mercury","Copper","Silver"], ans:1},
+{q:"Study of cells?", options:["Biology","Cytology","Zoology","Botany"], ans:1},
+{q:"Instrument measure temp?", options:["Barometer","Thermometer","Hygrometer","Ammeter"], ans:1}
+],
+
+IQ: [
+{q:"Next: 2,6,12,20,?", options:["28","30","32","36"], ans:1},
+{q:"Odd: 121,144,169,196,225,250", options:["121","144","169","250"], ans:3},
+{q:"If SKY=55, SUN=?", options:["54","56","58","60"], ans:2},
+{q:"Water:River :: Blood:?", options:["Heart","Vein","Body","Cell"], ans:1},
+{q:"Binary of 10?", options:["1010","1100","1110","1001"], ans:0},
+{q:"Largest: 3/4,5/8,7/10,9/12", options:["3/4","5/8","7/10","9/12"], ans:0},
+{q:"Day 150 days after Wed?", options:["Thu","Fri","Sat","Sun"], ans:2},
+{q:"Odd: Cube,Sphere,Cone,Square", options:["Cube","Sphere","Cone","Square"], ans:3},
+{q:"15²−5²=?", options:["150","175","200","225"], ans:2},
+{q:"Mirror 806?", options:["908","609","806","980"], ans:1},
+{q:"Series: 4,6,9,13,?", options:["16","17","18","19"], ans:2},
+{q:"If A=1,Z=26, BAD=?", options:["7","9","11","13"], ans:0},
+{q:"Opposite direction South-East?", options:["North-West","North","West","South"], ans:0},
+{q:"Clock 9:00 angle?", options:["90","120","150","180"], ans:0},
+{q:"Odd: 2,4,8,14,16", options:["2","4","14","16"], ans:2},
+{q:"Next: 1,4,10,22,?", options:["34","40","46","52"], ans:2},
+{q:"If 12 men build in 5 days, 6 men?", options:["8","9","10","12"], ans:2},
+{q:"Series: C,F,I,?", options:["K","L","M","N"], ans:1},
+{q:"Angle triangle sum?", options:["90","120","180","360"], ans:2},
+{q:"Odd: Pen,Pencil,Eraser,Book", options:["Pen","Pencil","Eraser","Book"], ans:3}
+]
+},
+"10" : 
+{
+    Numeracy: [
+{q:"Solve: (3/5 + 7/10) ÷ (1/2)", options:["2","2.2","2.4","2.6"], ans:3},
+{q:"If x² − 9 = 0, x>0, find x.", options:["1","3","6","9"], ans:1},
+{q:"Roots of x² − 5x + 6?", options:["2,3","1,6","−2,−3","3,5"], ans:0},
+{q:"Area of triangle (b=10,h=12)?", options:["50","60","70","80"], ans:1},
+{q:"CI on 1000 at 10% for 2 yrs?", options:["200","210","220","240"], ans:1},
+{q:"√0.0004 = ?", options:["0.2","0.02","0.002","0.0002"], ans:1},
+{q:"If sinθ=1/2, θ=?", options:["30°","45°","60°","90°"], ans:0},
+{q:"Factorize: x²−16", options:["(x−4)(x+4)","(x−8)(x+2)","(x−2)(x+8)","(x−1)(x+16)"], ans:0},
+{q:"Mean of first 10 natural numbers?", options:["5","5.5","6","6.5"], ans:1},
+{q:"Probability of head in fair coin?", options:["0","1/4","1/2","1"], ans:2},
+{q:"Surface area cube side 4?", options:["64","96","128","144"], ans:1},
+{q:"Distance at 60km/h for 2.5h?", options:["120","130","140","150"], ans:3},
+{q:"If 2x+3=15, x=?", options:["5","6","7","8"], ans:1},
+{q:"Mode: 2,3,3,4,5", options:["2","3","4","5"], ans:1},
+{q:"tan45°=?", options:["0","1","√3","∞"], ans:1},
+{q:"Value of π (approx)?", options:["3.12","3.14","3.16","3.18"], ans:1},
+{q:"HCF of 36,48?", options:["6","8","12","16"], ans:2},
+{q:"If CP=400, SP=460, profit%?", options:["10","12","15","20"], ans:2},
+{q:"Volume cylinder r=7,h=10?", options:["1540","1440","1500","1600"], ans:0},
+{q:"Solve: 5x−10=0", options:["1","2","3","4"], ans:1}
+],
+
+Grammar: [
+{q:"Choose correct: Neither of the boys ___ present.", options:["are","were","is","have"], ans:2},
+{q:"Synonym of 'meticulous'", options:["Careless","Detailed","Quick","Lazy"], ans:1},
+{q:"Antonym of 'optimistic'", options:["Hopeful","Cheerful","Pessimistic","Calm"], ans:2},
+{q:"Passive of 'They completed work'", options:["Work was completed","Work completed","Work is completed","Completed work"], ans:0},
+{q:"Correct spelling:", options:["Conscience","Concience","Conscince","Consience"], ans:0},
+{q:"Idiom 'once in a blue moon'", options:["Rarely","Daily","Never","Often"], ans:0},
+{q:"He said, 'I will come' →", options:["He said he will come","He said he would come","He says come","He told come"], ans:1},
+{q:"Article: ___ European country", options:["a","an","the","no article"], ans:0},
+{q:"Preposition: fond ___ music", options:["at","of","for","on"], ans:1},
+{q:"Adjective in sentence?", options:["She is happy","She sings well","Run fast","Very quickly"], ans:0},
+{q:"Gerund example?", options:["Swimming is fun","Swim fast","He swims","Swum"], ans:0},
+{q:"Comparative of 'far'", options:["Farer","Farther","More far","Farthest"], ans:1},
+{q:"Superlative of 'good'", options:["Goodest","Better","Best","More good"], ans:2},
+{q:"Relative pronoun?", options:["Which","He","They","Them"], ans:0},
+{q:"Future perfect tense?", options:["Will have done","Will do","Did","Has done"], ans:0},
+{q:"Conjunction:", options:["Although","Quick","Soft","Blue"], ans:0},
+{q:"Correct: Each student ___ a book.", options:["have","has","are","were"], ans:1},
+{q:"Noun clause?", options:["I know that he lied","Running fast","Blue sky","Tall boy"], ans:0},
+{q:"Modal of obligation?", options:["May","Can","Must","Could"], ans:2},
+{q:"Adverb clause?", options:["When he came, I left","Tall building","Red car","Soft pillow"], ans:0}
+],
+
+Reasoning: [
+{q:"Series: 2,6,12,20,?", options:["28","30","32","36"], ans:1},
+{q:"Odd one: 4,9,16,25,30", options:["4","9","25","30"], ans:3},
+{q:"Coding: CAT→3120, DOG→?", options:["4157","4715","4716","4156"], ans:1},
+{q:"Angle at 3:15?", options:["0°","7.5°","15°","30°"], ans:1},
+{q:"Series: AZ,BY,CX,?", options:["DW","EV","DU","EW"], ans:0},
+{q:"If 5 men do work in 4 days, 1 man?", options:["10","15","20","25"], ans:2},
+{q:"Mirror of 907?", options:["706","709","907","970"], ans:1},
+{q:"Odd: Lion,Tiger,Goat,Leopard", options:["Lion","Tiger","Goat","Leopard"], ans:2},
+{q:"Next: 11,13,17,19,?", options:["21","23","25","27"], ans:1},
+{q:"Opposite of NE?", options:["SW","SE","NW","North"], ans:0},
+{q:"A taller than B, B than C. Shortest?", options:["A","B","C","None"], ans:2},
+{q:"Series: 1,4,9,16,?", options:["20","25","30","36"], ans:1},
+{q:"Day after 100 days from Monday?", options:["Tue","Wed","Thu","Fri"], ans:2},
+{q:"Odd: 3,5,7,11,14", options:["3","7","11","14"], ans:3},
+{q:"Coding: PEN→QFO, MAP→?", options:["NBQ","NBP","NBO","NAQ"], ans:1},
+{q:"Clock 12:30 angle?", options:["150","165","180","195"], ans:1},
+{q:"Series: Z,W,T,?", options:["Q","R","S","P"], ans:0},
+{q:"If 8→64, 9→81, 12→?", options:["124","144","154","164"], ans:1},
+{q:"Odd: Square,Rectangle,Circle,Triangle", options:["Square","Circle","Triangle","Rectangle"], ans:1},
+{q:"Next: 5,15,45,?", options:["90","115","125","135"], ans:3}
+],
+
+Memory: [
+{q:"Atomic number Oxygen?", options:["6","7","8","9"], ans:2},
+{q:"First PM of India?", options:["Nehru","Gandhi","Patel","Azad"], ans:0},
+{q:"SI unit force?", options:["Joule","Newton","Pascal","Watt"], ans:1},
+{q:"Largest planet?", options:["Earth","Mars","Jupiter","Saturn"], ans:2},
+{q:"Human bones count?", options:["200","206","210","216"], ans:1},
+{q:"Symbol Fe?", options:["Fluorine","Iron","Lead","Zinc"], ans:1},
+{q:"Longest river world?", options:["Amazon","Nile","Yangtze","Ganga"], ans:1},
+{q:"Photosynthesis gas released?", options:["CO2","O2","N2","H2"], ans:1},
+{q:"Currency UK?", options:["Dollar","Euro","Pound","Yen"], ans:2},
+{q:"Speed sound ~?", options:["340 m/s","300","360","390"], ans:0},
+{q:"Study of Earthquakes?", options:["Seismology","Biology","Astronomy","Ecology"], ans:0},
+{q:"Largest continent?", options:["Africa","Asia","Europe","America"], ans:1},
+{q:"Vitamin from sunlight?", options:["A","B","C","D"], ans:3},
+{q:"First Indian satellite?", options:["Aryabhata","INSAT","Rohini","PSLV"], ans:0},
+{q:"Boiling point water °C?", options:["90","95","100","110"], ans:2},
+{q:"Heart pumps?", options:["Air","Water","Blood","Oxygen"], ans:2},
+{q:"Unit power?", options:["Watt","Volt","Ampere","Joule"], ans:0},
+{q:"Gas for respiration?", options:["CO2","O2","N2","H2"], ans:1},
+{q:"Metal in bulbs?", options:["Copper","Tungsten","Iron","Silver"], ans:1},
+{q:"Study of plants?", options:["Botany","Zoology","Physics","Chemistry"], ans:0}
+],
+
+IQ: [
+{q:"Next: 2,5,11,23,?", options:["45","46","47","48"], ans:2},
+{q:"Odd: 121,144,169,196,210", options:["121","144","169","210"], ans:3},
+{q:"Binary of 15?", options:["1011","1101","1111","1001"], ans:2},
+{q:"Boat:Water :: Plane:?", options:["Air","Road","Sky","Cloud"], ans:0},
+{q:"Largest: 5/6,7/8,9/10,11/12", options:["5/6","7/8","9/10","11/12"], ans:3},
+{q:"Day 200 days after Fri?", options:["Mon","Tue","Wed","Thu"], ans:2},
+{q:"Odd: Cube,Cone,Sphere,Circle", options:["Cube","Cone","Sphere","Circle"], ans:3},
+{q:"17²−7²=?", options:["200","210","220","240"], ans:3},
+{q:"Mirror 619?", options:["916","619","691","961"], ans:0},
+{q:"Series: 3,7,15,31,?", options:["45","55","63","64"], ans:2},
+{q:"A=1,Z=26, ACE=?", options:["7","8","9","10"], ans:2},
+{q:"Opposite South-West?", options:["NE","NW","SE","North"], ans:0},
+{q:"Clock 2:20 angle?", options:["40","50","60","70"], ans:1},
+{q:"Odd: 6,12,18,25,30", options:["6","12","25","30"], ans:2},
+{q:"Next: 1,8,27,?", options:["54","64","81","100"], ans:1},
+{q:"12 men 6 days, 4 men?", options:["12","15","18","20"], ans:2},
+{q:"Series: B,E,H,?", options:["J","K","L","M"], ans:1},
+{q:"Triangle angle sum?", options:["90","120","180","360"], ans:2},
+{q:"Odd: Pen,Pencil,Ink,Paper", options:["Pen","Pencil","Ink","Paper"], ans:2},
+{q:"If 9→81, 13→?", options:["159","169","179","189"], ans:1}
+],
+
+DecisionMaking: [
+{q:"Friend cheats in exam. You?", options:["Ignore","Report politely","Join","Fight"], ans:1},
+{q:"Two deadlines clash?", options:["Delay both","Prioritize","Cancel","Panic"], ans:1},
+{q:"Lost wallet found?", options:["Keep","Return","Ignore","Hide"], ans:1},
+{q:"Team conflict?", options:["Avoid","Mediate","Shout","Quit"], ans:1},
+{q:"Low marks?", options:["Blame","Improve","Ignore","Cheat"], ans:1},
+{q:"Peer pressure?", options:["Follow","Refuse","Hide","Lie"], ans:1},
+{q:"Time short?", options:["Plan","Rush","Skip","Sleep"], ans:0},
+{q:"Wrong info shared?", options:["Correct","Ignore","Laugh","Spread"], ans:0},
+{q:"Group task?", options:["Lead fairly","Dominate","Avoid","Copy"], ans:0},
+{q:"Bullying seen?", options:["Support victim","Ignore","Join","Record"], ans:0},
+{q:"Health vs game?", options:["Health","Game","Both skip","None"], ans:0},
+{q:"Money found?", options:["Return","Spend","Hide","Share"], ans:0},
+{q:"Angry reply?", options:["Calm","Shout","Block","Mock"], ans:0},
+{q:"Exam prep?", options:["Plan","Cram","Skip","Guess"], ans:0},
+{q:"Project fail?", options:["Retry","Quit","Blame","Copy"], ans:0},
+{q:"New idea?", options:["Try","Reject","Mock","Delay"], ans:0},
+{q:"Risky dare?", options:["Refuse","Try","Hide","Lie"], ans:0},
+{q:"Late to class?", options:["Apologize","Lie","Skip","Argue"], ans:0},
+{q:"Shared duty?", options:["Do part","Avoid","Delay","Excuse"], ans:0},
+{q:"Goal setting?", options:["Plan","Dream only","Ignore","Copy"], ans:0}
+],
+
+Discipline: [
+{q:"Daily routine helps?", options:["Focus","Stress","Delay","Confuse"], ans:0},
+{q:"Homework time?", options:["On time","Late","Never","Random"], ans:0},
+{q:"Rules in school?", options:["Follow","Break","Ignore","Mock"], ans:0},
+{q:"Class behavior?", options:["Respectful","Noisy","Rude","Careless"], ans:0},
+{q:"Time management?", options:["Plan","Waste","Sleep","Ignore"], ans:0},
+{q:"Uniform rule?", options:["Follow","Avoid","Mock","Change"], ans:0},
+{q:"Queue rule?", options:["Wait turn","Push","Skip","Fight"], ans:0},
+{q:"Library rule?", options:["Silence","Talk","Shout","Run"], ans:0},
+{q:"Exam rule?", options:["Honesty","Cheat","Talk","Copy"], ans:0},
+{q:"Sports rule?", options:["Fair play","Cheat","Fight","Quit"], ans:0},
+{q:"Respect elders?", options:["Yes","No","Mock","Ignore"], ans:0},
+{q:"Goal tracking?", options:["Regular","Rare","Never","Random"], ans:0},
+{q:"Punctuality?", options:["Early","Late","Skip","Delay"], ans:0},
+{q:"Cleanliness?", options:["Maintain","Ignore","Mess","Delay"], ans:0},
+{q:"Phone in class?", options:["Avoid","Use","Hide","Share"], ans:0},
+{q:"Teacher advice?", options:["Follow","Ignore","Mock","Forget"], ans:0},
+{q:"Task finish?", options:["Complete","Delay","Quit","Forget"], ans:0},
+{q:"Anger control?", options:["Calm","Shout","Fight","Break"], ans:0},
+{q:"Attendance?", options:["Regular","Rare","Skip","Delay"], ans:0},
+{q:"Self-control?", options:["Strong","Weak","None","Random"], ans:0}
+],
+
+Personality: [
+{q:"Good listener?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Handle criticism?", options:["Accept","Angry","Ignore","Cry"], ans:0},
+{q:"Teamwork?", options:["Cooperate","Dominate","Avoid","Quit"], ans:0},
+{q:"Confidence?", options:["Balanced","Low","Over","None"], ans:0},
+{q:"Help others?", options:["Often","Rare","Never","Avoid"], ans:0},
+{q:"Positive mindset?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Communication?", options:["Clear","Rude","Silent","Confusing"], ans:0},
+{q:"Responsibility?", options:["Take","Avoid","Delay","Blame"], ans:0},
+{q:"Leadership?", options:["Guide","Force","Avoid","Ignore"], ans:0},
+{q:"Adaptability?", options:["Flexible","Rigid","Slow","None"], ans:0},
+{q:"Honesty?", options:["High","Low","Rare","None"], ans:0},
+{q:"Patience?", options:["Calm","Angry","Rush","Quit"], ans:0},
+{q:"Goal focus?", options:["Clear","Blur","None","Random"], ans:0},
+{q:"Social skills?", options:["Good","Poor","Low","None"], ans:0},
+{q:"Decision style?", options:["Logical","Emotional","Random","Avoid"], ans:0},
+{q:"Learning attitude?", options:["Growth","Fixed","Lazy","Ignore"], ans:0},
+{q:"Conflict handling?", options:["Resolve","Fight","Avoid","Delay"], ans:0},
+{q:"Self-motivation?", options:["High","Low","Rare","None"], ans:0},
+{q:"Respect others?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Optimism?", options:["Positive","Negative","Neutral","None"], ans:0}]
+},
+"11" : 
+{
+    Numeracy: [
+{q:"Solve: (2x+3)/5 = 7, x=?", options:["14","16","17","20"], ans:1},
+{q:"If log₁₀x = 2, x=?", options:["10","100","1000","2"], ans:1},
+{q:"Simplify: √50 + √18", options:["8√2","5√2","7√2","6√2"], ans:0},
+{q:"AP: a=3,d=5, find a₁₀", options:["43","45","48","50"], ans:2},
+{q:"Factorize: x²−7x+10", options:["(x−5)(x−2)","(x−10)(x+1)","(x−5)(x+2)","(x−1)(x−10)"], ans:0},
+{q:"sin²30° + cos²30°=?", options:["0","1","2","1/2"], ans:1},
+{q:"If 3x=81, x=?", options:["2","3","4","5"], ans:2},
+{q:"Determinant |2 3;1 4|=?", options:["5","8","3","11"], ans:0},
+{q:"Probability of even on dice?", options:["1/3","1/2","2/3","1"], ans:1},
+{q:"Slope between (1,2) and (3,6)?", options:["1","2","3","4"], ans:1},
+{q:"CI on 5000 at 5% for 2 yrs?", options:["512","500","525","550"], ans:0},
+{q:"If f(x)=x², find f(−3)", options:["9","−9","6","3"], ans:0},
+{q:"Range of 2,5,9,13?", options:["9","10","11","12"], ans:2},
+{q:"Median of 3,7,9,15,20?", options:["7","8","9","10"], ans:2},
+{q:"Equation of line y=2x+1 slope?", options:["1","2","3","0"], ans:1},
+{q:"√(0.09)?", options:["0.9","0.3","0.09","0.6"], ans:1},
+{q:"If A={1,2,3}, n(A)?", options:["2","3","4","1"], ans:1},
+{q:"Value of 2³×2⁴?", options:["64","128","32","16"], ans:1},
+{q:"Distance formula uses?", options:["√(x²+y²)","√((x2−x1)²+(y2−y1)²)","x+y","x−y"], ans:1},
+{q:"If tanθ=1, θ=?", options:["30°","45°","60°","90°"], ans:1}
+],
+
+Grammar: [
+{q:"Choose correct: Hardly had he arrived ___ it started raining.", options:["than","then","when","and"], ans:2},
+{q:"Synonym of 'prudent'", options:["Wise","Careless","Slow","Angry"], ans:0},
+{q:"Antonym of 'scarce'", options:["Rare","Limited","Abundant","Short"], ans:2},
+{q:"Correct: She is senior ___ me.", options:["than","to","from","with"], ans:1},
+{q:"Passive: They are building a bridge.", options:["Bridge is built","Bridge was built","Bridge is being built","Bridge built"], ans:2},
+{q:"Idiom 'spill the beans'", options:["Cook","Reveal secret","Make mess","Waste"], ans:1},
+{q:"One word: fear of heights", options:["Claustrophobia","Acrophobia","Hydrophobia","Agoraphobia"], ans:1},
+{q:"Correct article: ___ MBA graduate", options:["a","an","the","no article"], ans:1},
+{q:"Gerund?", options:["To run","Running","Ran","Runs"], ans:1},
+{q:"Subjunctive: If I ___ you", options:["was","were","am","be"], ans:1},
+{q:"Modal for advice?", options:["Must","Should","May","Need"], ans:1},
+{q:"Correct tag: She is late, ___?", options:["isn't she","wasn't she","doesn't she","aren't she"], ans:0},
+{q:"Comparative of 'little'?", options:["Littler","Less","Least","More"], ans:1},
+{q:"Adverb clause?", options:["When he came","Blue sky","Tall boy","Soft bed"], ans:0},
+{q:"Plural of 'phenomenon'?", options:["Phenomena","Phenomenons","Phenomenas","Phenomen"], ans:0},
+{q:"Direct→Indirect: He said 'I am busy'", options:["He said he is busy","He said he was busy","He says busy","He told busy"], ans:1},
+{q:"Correct preposition: capable ___", options:["to","of","for","with"], ans:1},
+{q:"Noun clause?", options:["What he said","Running fast","Tall tree","Blue car"], ans:0},
+{q:"Superlative of 'bad'?", options:["Badder","Worst","Worse","Most bad"], ans:1},
+{q:"Conjunction?", options:["Although","Quick","Happy","Blue"], ans:0}
+],
+
+Reasoning: [
+{q:"Series: 4,9,16,25,?", options:["30","35","36","49"], ans:2},
+{q:"Odd one: 8,27,64,100,125", options:["8","27","64","100"], ans:3},
+{q:"Coding: BOOK→CPPL, COAT→?", options:["DPBU","DPBT","DOAT","CPAT"], ans:0},
+{q:"Angle 4:40?", options:["100°","120°","110°","130°"], ans:2},
+{q:"A is brother of B, B sister of C. A to C?", options:["Brother","Cousin","Uncle","Father"], ans:0},
+{q:"Next: 2,10,30,68,?", options:["120","130","140","150"], ans:1},
+{q:"Mirror of 321?", options:["123","321","132","231"], ans:0},
+{q:"Odd: Triangle,Square,Circle,Cube", options:["Triangle","Square","Circle","Cube"], ans:3},
+{q:"Series: Z,X,U,Q,?", options:["M","N","O","L"], ans:0},
+{q:"If 5 men 10 days, 10 men?", options:["2","5","8","10"], ans:1},
+{q:"Clock 6:00 angle?", options:["90","180","120","60"], ans:1},
+{q:"Series: 1,1,2,3,5,?", options:["7","8","9","10"], ans:1},
+{q:"Day after 200 days from Tue?", options:["Sun","Mon","Tue","Wed"], ans:1},
+{q:"Odd: Rose,Lily,Lotus,Carrot", options:["Rose","Lily","Lotus","Carrot"], ans:3},
+{q:"Coding: SUN→TVO, MOON→?", options:["NPPQ","NQQP","NPPO","MPPO"], ans:0},
+{q:"Opposite East?", options:["West","North","South","NE"], ans:0},
+{q:"Series: 5,25,125,?", options:["525","625","725","225"], ans:1},
+{q:"If CAT=24, DOG=?", options:["26","27","29","30"], ans:0},
+{q:"Triangle sides 3,4,5 type?", options:["Acute","Right","Obtuse","Equilateral"], ans:1},
+{q:"Next: 7,14,28,56,?", options:["84","96","112","120"], ans:2}
+],
+
+Memory: [
+{q:"SI unit pressure?", options:["Pascal","Newton","Joule","Watt"], ans:0},
+{q:"Atomic number Carbon?", options:["6","8","12","14"], ans:0},
+{q:"Largest ocean?", options:["Indian","Pacific","Atlantic","Arctic"], ans:1},
+{q:"Newton’s 2nd law relates?", options:["Force","Energy","Power","Speed"], ans:0},
+{q:"Currency Japan?", options:["Won","Yuan","Yen","Dollar"], ans:2},
+{q:"Speed light?", options:["3×10⁸ m/s","3×10⁶","3×10⁵","3×10⁷"], ans:0},
+{q:"First Indian woman PM?", options:["Indira Gandhi","Sarojini Naidu","Pratibha","Sonia"], ans:0},
+{q:"Symbol Na?", options:["Nitrogen","Sodium","Nickel","Neon"], ans:1},
+{q:"Vitamin C source?", options:["Lemon","Rice","Milk","Meat"], ans:0},
+{q:"Largest desert?", options:["Sahara","Gobi","Kalahari","Thar"], ans:0},
+{q:"Human chromosome pairs?", options:["21","22","23","24"], ans:2},
+{q:"Study of cells?", options:["Cytology","Ecology","Anatomy","Biology"], ans:0},
+{q:"Unit current?", options:["Volt","Ampere","Ohm","Watt"], ans:1},
+{q:"Green pigment?", options:["Chlorophyll","Hemoglobin","Melanin","Keratin"], ans:0},
+{q:"Gas in balloons?", options:["Oxygen","Hydrogen","Helium","Nitrogen"], ans:2},
+{q:"First satellite?", options:["Sputnik","Apollo","Aryabhata","Voyager"], ans:0},
+{q:"Boiling point water?", options:["90","95","100","110"], ans:2},
+{q:"Metal liquid at RT?", options:["Mercury","Iron","Copper","Silver"], ans:0},
+{q:"Largest mammal?", options:["Elephant","Blue whale","Shark","Giraffe"], ans:1},
+{q:"DNA stands for?", options:["Deoxyribo...","Dynamic...","Dual...","None"], ans:0}
+],
+
+IQ: [
+{q:"Next: 3,6,12,24,?", options:["36","42","48","54"], ans:2},
+{q:"Odd: 121,144,169,196,225,250", options:["121","169","225","250"], ans:3},
+{q:"Binary 10?", options:["1010","1110","1001","1100"], ans:0},
+{q:"Book:Read :: Pen:?", options:["Write","Ink","Paper","Draw"], ans:0},
+{q:"Largest: 2/3,3/4,4/5,5/6", options:["2/3","3/4","4/5","5/6"], ans:3},
+{q:"Day 300 days after Mon?", options:["Tue","Wed","Thu","Fri"], ans:2},
+{q:"Odd: Sphere,Cube,Cone,Circle", options:["Sphere","Cube","Cone","Circle"], ans:3},
+{q:"15²−5²=?", options:["200","210","220","240"], ans:0},
+{q:"Mirror 806?", options:["908","608","809","906"], ans:0},
+{q:"Series: 2,5,10,17,?", options:["24","26","28","30"], ans:1},
+{q:"A=1,B=2; BAD=?", options:["7","8","9","10"], ans:1},
+{q:"Opposite SE?", options:["NW","NE","SW","North"], ans:0},
+{q:"Clock 3:30 angle?", options:["60","75","90","105"], ans:1},
+{q:"Odd: 9,27,81,100", options:["9","27","81","100"], ans:3},
+{q:"Next: 1,4,9,16,?", options:["20","25","30","36"], ans:1},
+{q:"8 men 12 days, 4 men?", options:["24","20","18","30"], ans:0},
+{q:"Series: C,F,I,?", options:["L","M","N","O"], ans:0},
+{q:"Angle sum quadrilateral?", options:["180","360","270","90"], ans:1},
+{q:"Odd: Gold,Silver,Copper,Coal", options:["Gold","Silver","Copper","Coal"], ans:3},
+{q:"If 11→121, 14→?", options:["186","196","206","216"], ans:1}
+],
+
+DecisionMaking: [
+{q:"Group disagrees on plan?", options:["Discuss","Quit","Force","Ignore"], ans:0},
+{q:"Caught mistake?", options:["Admit","Hide","Blame","Lie"], ans:0},
+{q:"Two exams same day?", options:["Plan early","Skip","Panic","Delay"], ans:0},
+{q:"Found cheating?", options:["Report","Join","Ignore","Laugh"], ans:0},
+{q:"Tight schedule?", options:["Prioritize","Rush","Delay","Sleep"], ans:0},
+{q:"Team member lazy?", options:["Motivate","Complain","Ignore","Fight"], ans:0},
+{q:"Wrong purchase?", options:["Return","Keep","Hide","Blame"], ans:0},
+{q:"Heated argument?", options:["Calm talk","Shout","Leave","Mock"], ans:0},
+{q:"Low score?", options:["Improve","Excuse","Cheat","Quit"], ans:0},
+{q:"Peer pressure?", options:["Refuse","Follow","Hide","Lie"], ans:0},
+{q:"Lost item?", options:["Report","Ignore","Hide","Sell"], ans:0},
+{q:"New opportunity?", options:["Evaluate","Reject","Delay","Ignore"], ans:0},
+{q:"Risky choice?", options:["Assess","Jump","Ignore","Delay"], ans:0},
+{q:"Budget issue?", options:["Plan","Borrow","Ignore","Spend"], ans:0},
+{q:"Conflict friend?", options:["Discuss","Avoid","Blame","Shout"], ans:0},
+{q:"Big decision?", options:["Research","Guess","Delay","Copy"], ans:0},
+{q:"Group leader?", options:["Fair","Bossy","Silent","Lazy"], ans:0},
+{q:"Deadline near?", options:["Focus","Panic","Quit","Sleep"], ans:0},
+{q:"Misinformation?", options:["Verify","Share","Ignore","Guess"], ans:0},
+{q:"Goal unclear?", options:["Clarify","Assume","Delay","Ignore"], ans:0}
+],
+
+Discipline: [
+{q:"Study routine?", options:["Fixed","Random","Rare","None"], ans:0},
+{q:"Attendance?", options:["Regular","Occasional","Rare","None"], ans:0},
+{q:"Homework?", options:["On time","Late","Skip","Copy"], ans:0},
+{q:"Rules?", options:["Follow","Break","Ignore","Mock"], ans:0},
+{q:"Time use?", options:["Planned","Wasted","Random","None"], ans:0},
+{q:"Queue?", options:["Wait","Push","Skip","Fight"], ans:0},
+{q:"Library?", options:["Quiet","Talk","Shout","Run"], ans:0},
+{q:"Exam?", options:["Honest","Cheat","Talk","Copy"], ans:0},
+{q:"Sports?", options:["Fair","Cheat","Fight","Quit"], ans:0},
+{q:"Respect?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Punctual?", options:["Yes","Late","Rare","No"], ans:0},
+{q:"Clean desk?", options:["Yes","Messy","Rare","No"], ans:0},
+{q:"Phone use?", options:["Limited","Excess","Hidden","None"], ans:0},
+{q:"Teacher advice?", options:["Follow","Ignore","Mock","Forget"], ans:0},
+{q:"Anger?", options:["Control","Outburst","Ignore","Fight"], ans:0},
+{q:"Self-control?", options:["High","Low","None","Rare"], ans:0},
+{q:"Goal tracking?", options:["Regular","Rare","None","Random"], ans:0},
+{q:"Sleep routine?", options:["Fixed","Late","Random","None"], ans:0},
+{q:"Task finish?", options:["Complete","Delay","Quit","Forget"], ans:0},
+{q:"Focus?", options:["Strong","Weak","Low","None"], ans:0}
+],
+
+Personality: [
+{q:"Accept feedback?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Team role?", options:["Cooperate","Dominate","Avoid","Quit"], ans:0},
+{q:"Confidence?", options:["Balanced","Low","Over","None"], ans:0},
+{q:"Help others?", options:["Often","Rare","Never","Avoid"], ans:0},
+{q:"Mindset?", options:["Growth","Fixed","Lazy","None"], ans:0},
+{q:"Communication?", options:["Clear","Rude","Silent","Confused"], ans:0},
+{q:"Responsibility?", options:["Take","Avoid","Blame","Delay"], ans:0},
+{q:"Leadership?", options:["Guide","Force","Avoid","Ignore"], ans:0},
+{q:"Adaptability?", options:["Flexible","Rigid","Slow","None"], ans:0},
+{q:"Honesty?", options:["High","Low","Rare","None"], ans:0},
+{q:"Patience?", options:["Calm","Angry","Rush","Quit"], ans:0},
+{q:"Goal focus?", options:["Clear","Blur","None","Random"], ans:0},
+{q:"Social skill?", options:["Good","Poor","Low","None"], ans:0},
+{q:"Decision style?", options:["Logical","Emotional","Random","Avoid"], ans:0},
+{q:"Learning style?", options:["Active","Passive","Lazy","None"], ans:0},
+{q:"Conflict handling?", options:["Resolve","Fight","Avoid","Delay"], ans:0},
+{q:"Motivation?", options:["High","Low","Rare","None"], ans:0},
+{q:"Respect others?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Optimism?", options:["Positive","Negative","Neutral","None"], ans:0},
+{q:"Self-awareness?", options:["High","Low","Rare","None"], ans:0}]
+},
+"12":
+{
+    Numeracy: [
+{q:"lim x→0 (sinx/x) = ?", options:["0","1","∞","−1"], ans:1},
+{q:"Derivative of x³?", options:["3x","3x²","x²","x³"], ans:1},
+{q:"∫2x dx = ?", options:["x²+C","2x+C","x+C","x²"], ans:0},
+{q:"log₂32 = ?", options:["4","5","6","7"], ans:1},
+{q:"If A={1,2,3}, B={2,3,4}, A∩B?", options:["{2,3}","{1,4}","{3,4}","{2}"], ans:0},
+{q:"Determinant |1 2;3 4|?", options:["−2","2","10","0"], ans:0},
+{q:"sin60° cos30°=?", options:["1/2","3/4","√3/2","1"], ans:1},
+{q:"Probability of head in fair coin?", options:["0","1","1/2","2"], ans:2},
+{q:"Solve: x²−4=0", options:["±2","±4","2","4"], ans:0},
+{q:"CI on 1000 at 10% 2yr?", options:["200","210","220","230"], ans:1},
+{q:"Matrix order 2×3 ×3×2?", options:["2×2","3×3","2×3","3×2"], ans:0},
+{q:"Vector magnitude of (3,4)?", options:["5","6","7","4"], ans:0},
+{q:"Mean of 2,4,6,8?", options:["4","5","6","3"], ans:1},
+{q:"If f(x)=2x+1, f(3)?", options:["5","6","7","8"], ans:2},
+{q:"tan45°=?", options:["0","1","−1","√3"], ans:1},
+{q:"Permutation 5P2?", options:["10","20","25","5"], ans:1},
+{q:"Combination 5C2?", options:["10","20","5","15"], ans:0},
+{q:"Slope of y=3x+2?", options:["2","3","1","0"], ans:1},
+{q:"Distance (0,0) to (3,4)?", options:["5","4","6","7"], ans:0},
+{q:"e⁰=?", options:["0","1","e","−1"], ans:1}
+],
+
+Grammar: [
+{q:"Choose correct: No sooner ___ he arrived than it rained.", options:["did","had","has","was"], ans:1},
+{q:"Synonym: Ubiquitous", options:["Rare","Everywhere","Hidden","Tiny"], ans:1},
+{q:"Antonym: Candid", options:["Honest","Frank","Secretive","Open"], ans:2},
+{q:"Correct: He is superior ___ me.", options:["than","to","from","with"], ans:1},
+{q:"Passive: People speak English worldwide.", options:["English is spoken worldwide","English spoken","English speaks","Spoken English"], ans:0},
+{q:"Idiom: Break the ice", options:["Start talk","Freeze","Crack","Argue"], ans:0},
+{q:"One word: Study of stars", options:["Biology","Astronomy","Geology","Ecology"], ans:1},
+{q:"Article: ___ honest man", options:["a","an","the","no"], ans:1},
+{q:"Gerund example?", options:["Swimming is fun","Swim fast","He swims","Swum"], ans:0},
+{q:"If I ___ rich, I would travel.", options:["am","was","were","be"], ans:2},
+{q:"Modal for deduction?", options:["Must","May","Can","Might"], ans:0},
+{q:"Tag: You finished, ___?", options:["didn't you","did you","aren't you","won't you"], ans:0},
+{q:"Comparative of 'far'?", options:["Farther","Farrer","More far","Farest"], ans:0},
+{q:"Adjective clause?", options:["Who came late","Run fast","Blue sky","Soft bed"], ans:0},
+{q:"Plural: Analysis", options:["Analysises","Analyses","Analysis","Analys"], ans:1},
+{q:"Reported: She said 'I will go'", options:["She said she will go","She said she would go","She says go","She told go"], ans:1},
+{q:"Preposition: fond ___ music", options:["at","of","for","with"], ans:1},
+{q:"Noun clause?", options:["What he said","Tall boy","Run fast","Blue car"], ans:0},
+{q:"Superlative of 'good'?", options:["Best","Goodest","Better","Most good"], ans:0},
+{q:"Conjunction?", options:["Although","Quick","Blue","Happy"], ans:0}
+],
+
+Reasoning: [
+{q:"Series: 2,6,12,20,?", options:["28","30","32","34"], ans:1},
+{q:"Odd: 8,27,64,125,150", options:["8","27","125","150"], ans:3},
+{q:"Coding: CAT→DBU, DOG→?", options:["EPH","EPG","FOH","EOH"], ans:0},
+{q:"Angle at 5:20?", options:["40°","50°","60°","70°"], ans:1},
+{q:"A>B, B>C →?", options:["A>C","C>A","A=B","None"], ans:0},
+{q:"Next: 1,4,13,40,?", options:["121","120","122","124"], ans:0},
+{q:"Mirror 609?", options:["906","609","690","960"], ans:0},
+{q:"Odd: Cube,Sphere,Cone,Triangle", options:["Cube","Sphere","Cone","Triangle"], ans:3},
+{q:"Z,Y,X,V,?", options:["T","U","S","R"], ans:0},
+{q:"6 men 12 days, 3 men?", options:["24","18","12","30"], ans:0},
+{q:"Clock 9:00 angle?", options:["90","120","180","60"], ans:0},
+{q:"Fibonacci next: 1,1,2,3,5,?", options:["7","8","9","10"], ans:1},
+{q:"200 days after Mon?", options:["Tue","Wed","Thu","Fri"], ans:2},
+{q:"Odd: Apple,Mango,Carrot,Grapes", options:["Apple","Carrot","Mango","Grapes"], ans:1},
+{q:"SUN→TVP, MOON→?", options:["NPPO","NPPQ","MPPO","OQQP"], ans:0},
+{q:"Opposite North?", options:["South","East","West","NE"], ans:0},
+{q:"3,9,27,?", options:["54","81","72","90"], ans:1},
+{q:"CAT=24, DOG=?", options:["26","27","29","30"], ans:0},
+{q:"Triangle 3,4,5?", options:["Right","Acute","Obtuse","Equi"], ans:0},
+{q:"7,14,28,56,?", options:["84","96","112","120"], ans:2}
+],
+
+Memory: [
+{q:"SI unit energy?", options:["Joule","Watt","Volt","Newton"], ans:0},
+{q:"Atomic no. Hydrogen?", options:["1","2","3","4"], ans:0},
+{q:"Largest planet?", options:["Earth","Jupiter","Saturn","Mars"], ans:1},
+{q:"Ohm’s law relates?", options:["V,I,R","Power","Energy","Speed"], ans:0},
+{q:"Currency UK?", options:["Dollar","Euro","Pound","Yen"], ans:2},
+{q:"Light speed?", options:["3×10⁸","3×10⁶","3×10⁵","3×10⁷"], ans:0},
+{q:"First man Moon?", options:["Armstrong","Aldrin","Gagarin","Glenn"], ans:0},
+{q:"Symbol Fe?", options:["Iron","Fluorine","Francium","Lead"], ans:0},
+{q:"Vitamin D source?", options:["Sunlight","Rice","Milk","Meat"], ans:0},
+{q:"Largest ocean?", options:["Pacific","Indian","Arctic","Atlantic"], ans:0},
+{q:"Human bones?", options:["206","210","201","196"], ans:0},
+{q:"Study of earth?", options:["Geology","Biology","Zoology","Botany"], ans:0},
+{q:"Unit power?", options:["Watt","Volt","Joule","Amp"], ans:0},
+{q:"Green pigment?", options:["Chlorophyll","Melanin","Keratin","Heme"], ans:0},
+{q:"Gas respiration?", options:["Oxygen","CO2","Nitrogen","Helium"], ans:0},
+{q:"India’s first satellite?", options:["Aryabhata","INSAT","Sputnik","Apollo"], ans:0},
+{q:"Freezing point water?", options:["0°C","4°C","−1°C","10°C"], ans:0},
+{q:"Liquid metal?", options:["Mercury","Iron","Copper","Silver"], ans:0},
+{q:"Largest mammal?", options:["Blue whale","Elephant","Giraffe","Hippo"], ans:0},
+{q:"DNA full form?", options:["Deoxyribonucleic acid","Dynamic acid","Dual acid","None"], ans:0}
+],
+
+IQ: [
+{q:"2,4,8,16,?", options:["24","32","30","36"], ans:1},
+{q:"Odd: 121,144,169,196,210", options:["121","169","196","210"], ans:3},
+{q:"Binary 12?", options:["1100","1010","1110","1001"], ans:0},
+{q:"Book:Read :: Knife:?", options:["Cut","Sharp","Steel","Cook"], ans:0},
+{q:"Largest: 3/4,5/6,7/8,9/10", options:["3/4","5/6","7/8","9/10"], ans:3},
+{q:"150 days after Fri?", options:["Sun","Mon","Tue","Wed"], ans:0},
+{q:"Odd: Sphere,Cube,Cone,Circle", options:["Sphere","Cube","Cone","Circle"], ans:3},
+{q:"25²−5²?", options:["600","625","650","575"], ans:0},
+{q:"Mirror 708?", options:["807","708","780","870"], ans:0},
+{q:"3,7,15,31,?", options:["47","55","63","60"], ans:2},
+{q:"A=1,B=2; BAD=?", options:["7","8","9","10"], ans:1},
+{q:"Opposite SW?", options:["NE","NW","SE","North"], ans:0},
+{q:"Clock 2:30?", options:["105","90","75","60"], ans:2},
+{q:"Odd: 16,25,36,49,60", options:["16","36","49","60"], ans:3},
+{q:"1,4,9,16,?", options:["20","25","30","36"], ans:1},
+{q:"10 men 5 days, 5 men?", options:["10","8","6","12"], ans:0},
+{q:"B,E,H,?", options:["K","L","M","N"], ans:0},
+{q:"Triangle sum?", options:["180","360","90","270"], ans:0},
+{q:"Odd: Gold,Silver,Copper,Coal", options:["Gold","Silver","Copper","Coal"], ans:3},
+{q:"12→144, 15→?", options:["200","215","225","210"], ans:2}
+],
+
+DecisionMaking: [
+{q:"Unfair grading?", options:["Discuss politely","Argue","Ignore","Blame"], ans:0},
+{q:"Team conflict?", options:["Mediate","Quit","Take sides","Ignore"], ans:0},
+{q:"Cheating seen?", options:["Report","Join","Ignore","Laugh"], ans:0},
+{q:"Time clash tasks?", options:["Prioritize","Delay","Quit","Rush"], ans:0},
+{q:"Peer pressure?", options:["Refuse","Follow","Hide","Lie"], ans:0},
+{q:"Wrong info shared?", options:["Correct","Ignore","Spread","Delete"], ans:0},
+{q:"Budget short?", options:["Plan","Borrow","Ignore","Spend"], ans:0},
+{q:"Risky choice?", options:["Evaluate","Jump","Ignore","Delay"], ans:0},
+{q:"Angry debate?", options:["Stay calm","Shout","Leave","Mock"], ans:0},
+{q:"Low marks?", options:["Improve","Excuse","Cheat","Quit"], ans:0},
+{q:"Lost doc?", options:["Report","Hide","Ignore","Delay"], ans:0},
+{q:"Group leader?", options:["Fair","Bossy","Silent","Lazy"], ans:0},
+{q:"Misinformation?", options:["Verify","Share","Ignore","Guess"], ans:0},
+{q:"Big purchase?", options:["Research","Buy fast","Copy","Delay"], ans:0},
+{q:"Career choice?", options:["Analyze","Copy peers","Guess","Delay"], ans:0},
+{q:"Conflict friend?", options:["Discuss","Avoid","Fight","Blame"], ans:0},
+{q:"Tight deadline?", options:["Focus","Panic","Quit","Sleep"], ans:0},
+{q:"New offer?", options:["Evaluate","Reject","Ignore","Delay"], ans:0},
+{q:"Ethical issue?", options:["Do right","Ignore","Follow crowd","Hide"], ans:0},
+{q:"Goal unclear?", options:["Clarify","Assume","Delay","Ignore"], ans:0}
+],
+
+Discipline: [
+{q:"Routine study?", options:["Daily","Random","Rare","None"], ans:0},
+{q:"Punctuality?", options:["On time","Late","Rare","Never"], ans:0},
+{q:"Deadlines?", options:["Respect","Delay","Ignore","Forget"], ans:0},
+{q:"Rules?", options:["Follow","Break","Mock","Ignore"], ans:0},
+{q:"Focus?", options:["Strong","Weak","Low","None"], ans:0},
+{q:"Homework?", options:["Complete","Copy","Skip","Delay"], ans:0},
+{q:"Exam honesty?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Time plan?", options:["Schedule","Random","Waste","None"], ans:0},
+{q:"Library?", options:["Quiet","Talk","Run","Shout"], ans:0},
+{q:"Phone use?", options:["Limited","Excess","Hidden","None"], ans:0},
+{q:"Respect elders?", options:["Yes","No","Rare","Never"], ans:0},
+{q:"Cleanliness?", options:["Maintain","Messy","Rare","None"], ans:0},
+{q:"Sports fairness?", options:["Fair","Cheat","Fight","Quit"], ans:0},
+{q:"Anger control?", options:["Calm","Outburst","Fight","Quit"], ans:0},
+{q:"Goal tracking?", options:["Regular","Rare","None","Random"], ans:0},
+{q:"Sleep routine?", options:["Fixed","Late","Random","None"], ans:0},
+{q:"Task finish?", options:["Complete","Delay","Quit","Forget"], ans:0},
+{q:"Listening skill?", options:["Good","Poor","Low","None"], ans:0},
+{q:"Self-control?", options:["High","Low","None","Rare"], ans:0},
+{q:"Responsibility?", options:["Take","Avoid","Blame","Delay"], ans:0}
+],
+
+Personality: [
+{q:"Integrity means?", options:["Honesty","Pride","Boldness","Silence"], ans:0},
+{q:"Optimism leads to?", options:["Motivation","Delay","Fear","Stress"], ans:0},
+{q:"Leadership needs?", options:["Vision","Power","Control","Orders"], ans:0},
+{q:"Team spirit?", options:["Cooperation","Dominance","Silence","Control"], ans:0},
+{q:"Self-awareness?", options:["Know yourself","Judge others","Compare","Praise"], ans:0},
+{q:"Respect builds?", options:["Trust","Fear","Distance","Silence"], ans:0},
+{q:"Adaptability?", options:["Flexibility","Weakness","Fear","Confusion"], ans:0},
+{q:"Confidence vs arrogance?", options:["Belief vs pride","Same","Show-off","Silence"], ans:0},
+{q:"Growth mindset?", options:["Learn from mistakes","Avoid risk","Know all","Perfect"], ans:0},
+{q:"EQ helps?", options:["Relationships","Marks","Fame","Silence"], ans:0},
+{q:"Patience?", options:["Calm","Anger","Rush","Quit"], ans:0},
+{q:"Motivation?", options:["Internal drive","Pressure","Fear","Luck"], ans:0},
+{q:"Communication?", options:["Clear","Rude","Silent","Confused"], ans:0},
+{q:"Responsibility?", options:["Own actions","Blame","Avoid","Delay"], ans:0},
+{q:"Leadership style?", options:["Guide","Force","Avoid","Ignore"], ans:0},
+{q:"Decision style?", options:["Logical","Random","Emotional only","Avoid"], ans:0},
+{q:"Learning style?", options:["Active","Passive","Lazy","None"], ans:0},
+{q:"Conflict handling?", options:["Resolve","Fight","Avoid","Delay"], ans:0},
+{q:"Social skill?", options:["Good","Poor","Low","None"], ans:0},
+{q:"Self-confidence?", options:["Balanced","Low","Over","None"], ans:0}
+]
+
+}
+};
+
+// ==========================
+// LOAD ABILITY & QUESTIONS
+// ==========================
+function loadAbility(){
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const key = (ability==="Decision Making")?"Decision_Making":ability;
+    STATE.currentQuestions = [...QUESTION_BANK[STATE.class][key]];
+    shuffle(STATE.currentQuestions);
+    STATE.currentQuestions = STATE.currentQuestions.slice(0, STATE.numQuestions);
+    STATE.totalQs[ability] = STATE.currentQuestions.length;
+    STATE.currentQIndex = 0;
+    STATE.selectedAnswer = null;
+    loadQuestion();
+}
+
+// ==========================
+// LOAD ONE QUESTION
+// ==========================
+function loadQuestion(){
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const qObj = STATE.currentQuestions[STATE.currentQIndex];
+    document.getElementById("abilityTitle").innerText = ability+" Test";
+    document.getElementById("questionText").innerText = qObj.q;
+
+    const box = document.getElementById("optionsBox");
+    box.innerHTML = "";
+    qObj.options.forEach(op=>{
+        const div = document.createElement("div");
+        div.className = "option";
+        div.innerText = op;
+        div.onclick = ()=>selectOption(div, op);
+        box.appendChild(div);
+    });
+}
+
+// ==========================
+// SELECT OPTION
+// ==========================
+function selectOption(element,value){
+    STATE.selectedAnswer = value;
+    document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+    element.classList.add("selected");
+}
+
+// ==========================
+// NEXT QUESTION
+// ==========================
+function nextQuestion(){
+    if(!STATE.selectedAnswer){ alert("Select an option first!"); return; }
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const qObj = STATE.currentQuestions[STATE.currentQIndex];
+
+    if(STATE.selectedAnswer === qObj.options[qObj.ans]){ STATE.scores[ability]++; STATE.correctQs[ability]++; }
+
+    STATE.selectedAnswer = null;
+    STATE.currentQIndex++;
+    if(STATE.currentQIndex >= STATE.currentQuestions.length){
+        STATE.currentAbilityIndex++;
+        if(STATE.currentAbilityIndex >= STATE.abilityOrder.length){ finishAllAbilities(); return; }
+        loadAbility();
+    } else { loadQuestion(); }
+}
+
+// ==========================
+// SHUFFLE
+// ==========================
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+}
+
+// ==========================
+// FINAL REPORT
+// ==========================
+function finishAllAbilities(){
+    console.log("STATE:", STATE);
+    console.log("Scores:", STATE.scores);
+    console.log("TotalQs:", STATE.totalQs);
+
+    document.getElementById("questionArea").style.display = "none";
+    const summaryDiv = document.getElementById("finalSummary");
+    summaryDiv.style.display = "block";
+
+    let html = `
+    <div class="report-header">
+        <h1>Student Ability Assessment Report</h1>
+        <p>Comprehensive Performance Summary</p>
+    </div>
+
+    <div class="student-info">
+        <div><strong>Name:</strong> ${STATE.studentName}</div>
+        <div><strong>Class:</strong> ${STATE.class}</div>
+    </div>
+    `;
+
+    const labels = [];
+    const data = [];
+
+    let totalScore = 0;
+    let totalQuestions = 0;
+
+    let strengths = [];
+    let weaknesses = [];
+
+    for(const ab of STATE.abilityOrder){
+
+        const score = STATE.scores[ab];
+        const total = STATE.totalQs[ab];
+        const percent = total ? Math.round((score/total)*100) : 0;
+
+        labels.push(ab);
+        data.push(percent);
+
+        totalScore += score;
+        totalQuestions += total;
+
+        if(percent >= 75) strengths.push(ab);
+        if(percent <= 40) weaknesses.push(ab);
+
+        let suggestion = "";
+        if(percent >= 80)
+            suggestion = "Excellent ability. Maintain this level.";
+        else if(percent >= 50)
+            suggestion = "Good ability but more practice will help.";
+        else
+            suggestion = "Needs improvement. Focused learning recommended.";
+
+        html += `
+        <div class="ability-card">
+            <h3>${ab}</h3>
+            <p><strong>Score:</strong> ${score}/${total} (${percent}%)</p>
+
+            <div class="progress-bar">
+                <div class="progress" style="width:${percent}%"></div>
+            </div>
+
+            <div class="suggestion">${suggestion}</div>
+        </div>
+        `;
+    }
+
+    /* =========================
+       OVERALL PERFORMANCE
+    ========================= */
+
+    const overallPercent = totalQuestions ? Math.round((totalScore/totalQuestions)*100) : 0;
+
+    let level = "";
+
+    if(overallPercent >= 85) level = "Excellent";
+    else if(overallPercent >= 70) level = "Very Good";
+    else if(overallPercent >= 50) level = "Good";
+    else level = "Needs Improvement";
+
+    html = `
+    <div class="overall-card">
+        <h2>Overall Performance</h2>
+        <p>Total Score: ${totalScore} / ${totalQuestions}</p>
+        <p>Overall Percentage: ${overallPercent}%</p>
+        <p>Performance Level: ${level}</p>
+    </div>
+    ` + html;
+
+    /* =========================
+       STRENGTH ANALYSIS
+    ========================= */
+
+    html += `
+    <div class="analysis-card">
+        <h2>Ability Analysis</h2>
+
+        <p><strong>Strong Abilities:</strong> 
+        ${strengths.length ? strengths.join(", ") : "None identified yet"}
+        </p>
+
+        <p><strong>Areas To Improve:</strong>
+        ${weaknesses.length ? weaknesses.join(", ") : "None"}
+        </p>
+    </div>
+    `;
+
+    /* =========================
+       CAREER SUGGESTIONS
+    ========================= */
+
+    let careers = [];
+
+    if(strengths.includes("Numeracy") || strengths.includes("IQ"))
+        careers.push("Engineering / Technology");
+
+    if(strengths.includes("Reasoning"))
+        careers.push("Research / Data Science");
+
+    if(strengths.includes("Personality"))
+        careers.push("Leadership / Management");
+
+    if(strengths.includes("Grammar"))
+        careers.push("Media / Communication");
+
+    if(careers.length === 0)
+        careers.push("General Academic Fields");
+
+    html += `
+    <div class="career-card">
+        <h2>Suggested Future Directions</h2>
+        <p>${careers.join(", ")}</p>
+    </div>
+    `;
+
+    /* =========================
+       CHART SECTION
+    ========================= */
+
+    html += `
+    <div class="chart-section">
+        <h2 style="text-align:center">Ability Radar Chart</h2>
+        <canvas id="scoreChart"></canvas>
+    </div>
+    `;
+
+    document.getElementById("summaryText").innerHTML = html;
+
+    /* =========================
+       🔥 SCROLL FIX (IMPORTANT)
+    ========================= */
+
+    setTimeout(() => {
+        summaryDiv.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, 100);
+
+    /* =========================
+       RADAR CHART
+    ========================= */
+
+    const ctx = document.getElementById("scoreChart").getContext('2d');
+
+    if(window.scoreChartInstance instanceof Chart){
+        window.scoreChartInstance.destroy();
+    }
+
+    window.scoreChartInstance = new Chart(ctx,{
+        type:'radar',
+        data:{
+            labels:labels,
+            datasets:[{
+                label:'Ability Score %',
+                data:data,
+                backgroundColor:'rgba(93,117,255,0.25)',
+                borderColor:'#5d75ff',
+                pointBackgroundColor:'#5d75ff',
+                borderWidth:3
+            }]
+        },
+        options:{
+            plugins:{
+                legend:{display:false}
+            },
+            scales:{
+                r:{
+                    beginAtZero:true,
+                    max:100,
+                    ticks:{stepSize:20}
+                }
+            }
+        }
+    });
+
+    saveResultToDB(overallPercent);
+}
+function saveResultToDB(overallPercent){
+    const email = localStorage.getItem("loggedInEmail");
+
+    if(!email){
+        console.log("No email found");
+        return;
+    }
+
+    fetch("http://localhost:5000/save-result", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: email,
+            studentName: STATE.studentName,
+            className: STATE.class,
+            scores: STATE.scores,
+            correctQs: STATE.correctQs,
+            totalQs: STATE.totalQs,
+            overallPercent: overallPercent
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Result saved:", data);
+    })
+    .catch(err => {
+        console.log("Error:", err);
+    });
+}
+
+// ==========================
+// PDF Download
+// ==========================
+function downloadPDF() {
+    const report = document.getElementById("finalSummary");
+    const pdfWrapper = document.getElementById("pdfWrapper");
+
+    if (!report) {
+        alert("Final report not found.");
+        return;
+    }
+
+    if (!pdfWrapper) {
+        alert("PDF wrapper not found.");
+        return;
+    }
+
+    // Clear old content
+    pdfWrapper.innerHTML = "";
+    pdfWrapper.style.display = "block";
+    pdfWrapper.style.position = "absolute";
+    pdfWrapper.style.left = "-99999px";
+    pdfWrapper.style.top = "0";
+    pdfWrapper.style.width = "794px";
+    pdfWrapper.style.background = "white";
+    pdfWrapper.style.zIndex = "-1";
+
+    // Clone the visible final report exactly
+    const clone = report.cloneNode(true);
+    clone.style.display = "block";
+    clone.style.width = "794px";
+    clone.style.maxWidth = "794px";
+    clone.style.margin = "0 auto";
+    clone.style.background = "white";
+    clone.style.color = "black";
+    clone.classList.add("pdf-mode", "pdf-only");
+
+    // Remove download buttons from cloned version
+    clone.querySelectorAll("button").forEach(btn => btn.remove());
+
+    // Replace chart canvas with chart image
+    const originalCanvas = document.getElementById("scoreChart");
+    const cloneCanvas = clone.querySelector("#scoreChart");
+
+    if (originalCanvas && cloneCanvas) {
+        try {
+            const chartImg = document.createElement("img");
+            chartImg.src = originalCanvas.toDataURL("image/png", 1.0);
+            chartImg.style.width = "100%";
+            chartImg.style.display = "block";
+            chartImg.style.marginTop = "20px";
+            chartImg.style.pageBreakInside = "avoid";
+
+            cloneCanvas.parentNode.replaceChild(chartImg, cloneCanvas);
+        } catch (err) {
+            console.log("Chart image conversion failed:", err);
+        }
+    }
+
+    // Append clone to hidden wrapper
+    pdfWrapper.appendChild(clone);
+
+    const opt = {
+        margin: [8, 8, 8, 8],
+        filename: `${STATE.studentName || "Student"}_Ability_Report.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            scrollX: 0,
+            scrollY: 0
+        },
+        jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait"
+        },
+        pagebreak: {
+            mode: ["css", "legacy"]
+        }
+    };
+
+    // Small wait so cloned DOM fully renders
+    setTimeout(() => {
+        html2pdf()
+            .set(opt)
+            .from(clone)
+            .save()
+            .then(() => {
+                pdfWrapper.innerHTML = "";
+                pdfWrapper.style.display = "none";
+            })
+            .catch((err) => {
+                console.log("PDF generation error:", err);
+                alert("PDF download failed. Please try again.");
+                pdfWrapper.innerHTML = "";
+                pdfWrapper.style.display = "none";
+            });
+    }, 800);
+}
+</script>
+</body>
+</html>

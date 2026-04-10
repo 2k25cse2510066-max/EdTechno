@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Ability Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg1:#0f172a;
+    --bg2:#1d4ed8;
+    --bg3:#06b6d4;
+    --glass:rgba(255,255,255,0.12);
+    --glass-strong:rgba(255,255,255,0.18);
+    --border:rgba(255,255,255,0.18);
+    --white:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --primary:#5b5df0;
+    --primary2:#00c6ff;
+    --success:#10b981;
+    --shadow:0 20px 60px rgba(0,0,0,0.28);
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;
+    padding:30px 16px;
+    background:
+        radial-gradient(circle at top left, rgba(34,211,238,0.25), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,0.25), transparent 25%),
+        linear-gradient(135deg,var(--bg1),var(--bg2),#2563eb);
+    background-size:cover;
+    animation:gradientBG 12s ease infinite;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    position:relative;
+    overflow-x:hidden;
+}
+
+body::before,
+body::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.45;
+    z-index:0;
+}
+
+body::before{
+    width:240px;
+    height:240px;
+    background:#22d3ee;
+    top:40px;
+    left:20px;
+}
+
+body::after{
+    width:300px;
+    height:300px;
+    background:#8b5cf6;
+    bottom:40px;
+    right:20px;
+}
+
+@keyframes gradientBG{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:950px;
+    margin:20px auto;
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(255,255,255,0.55);
+    border-radius:28px;
+    padding:34px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    animation:fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(22px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+#loginBox{
+    max-width:1100px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:28px;
+    padding:0;
+    overflow:hidden;
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.22);
+}
+
+#loginBox::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    z-index:0;
+}
+
+.login-left,
+.login-right{
+    position:relative;
+    z-index:1;
+}
+
+.login-left{
+    padding:48px 42px;
+    color:white;
+    background:linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.login-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+    font-size:14px;
+    font-weight:600;
+    color:rgba(255,255,255,0.82);
+}
+
+.login-badge-icon{
+    width:44px;
+    height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    background:linear-gradient(135deg,#7c3aed,#06b6d4);
+    box-shadow:0 12px 25px rgba(0,0,0,0.22);
+    font-size:20px;
+}
+
+.login-left h1{
+    font-size:42px;
+    line-height:1.15;
+    margin-bottom:16px;
+    font-weight:800;
+    color:white;
+}
+
+.login-left p{
+    color:rgba(255,255,255,0.78);
+    line-height:1.8;
+    font-size:15px;
+    margin-bottom:28px;
+}
+
+.feature-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(150px,1fr));
+    gap:14px;
+}
+
+.feature-card{
+    padding:16px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+    transition:0.3s ease;
+}
+
+.feature-card:hover{
+    transform:translateY(-4px);
+    background:rgba(255,255,255,0.12);
+}
+
+.feature-card h4{
+    font-size:15px;
+    margin-bottom:6px;
+    color:white;
+}
+
+.feature-card p{
+    font-size:12px;
+    line-height:1.6;
+    margin:0;
+    color:rgba(255,255,255,0.72);
+}
+
+.login-right{
+    padding:34px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.login-panel{
+    width:100%;
+    max-width:430px;
+    border-radius:24px;
+    padding:30px 24px;
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.24);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    box-shadow:0 16px 40px rgba(0,0,0,0.18);
+}
+
+.login-panel h2{
+    text-align:center;
+    color:white;
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+.login-subtext{
+    text-align:center;
+    color:rgba(255,255,255,0.78);
+    font-size:14px;
+    margin-bottom:22px;
+}
+
+h1,h2,h3{
+    text-align:center;
+}
+
+label{
+    display:block;
+    margin-top:14px;
+    margin-bottom:8px;
+    font-weight:600;
+    font-size:15px;
+    color:#f8fafc;
+}
+
+input,select{
+    width:100%;
+    padding:14px 16px;
+    margin-top:0;
+    border-radius:14px;
+    border:1px solid #dbe4f0;
+    font-family:'Poppins',sans-serif;
+    font-size:15px;
+    background:rgba(255,255,255,0.95);
+    outline:none;
+    transition:0.25s ease;
+}
+
+input:focus,select:focus{
+    border-color:#60a5fa;
+    box-shadow:0 0 0 4px rgba(96,165,250,0.16);
+}
+
+button{
+    padding:15px 26px;
+    background:linear-gradient(135deg,#6d5dfc,#3b82f6,#06b6d4);
+    background-size:200% 200%;
+    color:white;
+    border:none;
+    border-radius:16px;
+    cursor:pointer;
+    margin-top:20px;
+    font-weight:700;
+    font-size:15px;
+    transition:0.3s ease;
+    box-shadow:0 14px 30px rgba(59,130,246,0.28);
+}
+
+button:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 34px rgba(0,0,0,0.22);
+    background-position:right center;
+}
+
+button:active{
+    transform:scale(0.98);
+}
+
+#startPage h1{
+    font-size:36px;
+    margin-bottom:8px;
+    color:#0f172a;
+}
+
+#startPage{
+    background:rgba(255,255,255,0.93);
+}
+
+#startPage::before{
+    content:"Assessment Setup";
+    display:inline-block;
+    margin-bottom:14px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#e0e7ff,#dbeafe);
+    color:#4338ca;
+    font-size:13px;
+    font-weight:700;
+}
+
+#questionArea{
+    background:rgba(255,255,255,0.95);
+}
+
+#abilityTitle{
+    font-size:30px;
+    color:#111827;
+    margin-bottom:8px;
+}
+
+#questionText{
+    margin-top:16px;
+    padding:24px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#eff6ff,#eef2ff);
+    color:#0f172a;
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    box-shadow:inset 0 0 0 1px rgba(148,163,184,0.15);
+}
+
+#optionsBox{
+    margin-top:20px;
+}
+
+.option{
+    padding:16px 18px;
+    margin:12px 0;
+    background:linear-gradient(135deg,#f8fbff,#eef2ff);
+    border-radius:16px;
+    border:2px solid #dbe3ff;
+    cursor:pointer;
+    transition:0.25s ease;
+    font-weight:600;
+    color:#1e293b;
+    box-shadow:0 6px 16px rgba(15,23,42,0.05);
+}
+
+.option:hover{
+    transform:translateY(-2px);
+    border-color:#93c5fd;
+    background:linear-gradient(135deg,#f0f9ff,#eef2ff);
+}
+
+.option.selected{
+    background:linear-gradient(135deg,#dbeafe,#e0e7ff);
+    border-color:#4f46e5;
+    color:#312e81;
+    box-shadow:0 10px 24px rgba(79,70,229,0.18);
+}
+
+#questionArea button{
+    display:block;
+    margin:22px auto 0;
+    min-width:180px;
+}
+
+#questionArea, #finalSummary{
+    display:none;
+}
+
+/* REPORT */
+.report{
+    background:linear-gradient(135deg,#f8fbff,#eef2ff);
+}
+
+.report-header{
+    text-align:center;
+    padding:24px 16px;
+    border-bottom:3px solid #5d75ff;
+    margin-bottom:18px;
+}
+
+.report-header h1{
+    margin:0;
+    color:#3a4fff;
+    font-size:32px;
+}
+
+.report-header p{
+    margin-top:8px;
+    color:#64748b;
+}
+
+.student-info{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin:20px 0 24px;
+    font-weight:600;
+    flex-wrap:wrap;
+}
+
+.overall-card{
+    background:linear-gradient(135deg,#6366f1,#3b82f6,#06b6d4);
+    color:white;
+    padding:24px;
+    border-radius:20px;
+    text-align:center;
+    margin-bottom:28px;
+    box-shadow:0 16px 35px rgba(59,130,246,0.25);
+}
+
+.overall-card h2{
+    margin-bottom:10px;
+    font-size:28px;
+}
+
+.analysis-card{
+    background:white;
+    padding:22px;
+    border-radius:18px;
+    margin-top:24px;
+    border-left:6px solid #5d75ff;
+    box-shadow:0 10px 26px rgba(15,23,42,0.08);
+}
+
+.analysis-card strong{
+    color:#3a4fff;
+}
+
+.ability-card{
+    background:white;
+    padding:20px;
+    margin:18px 0;
+    border-radius:18px;
+    box-shadow:0 10px 24px rgba(15,23,42,0.08);
+    border-left:6px solid #5d75ff;
+    transition:0.3s ease;
+    page-break-inside:avoid;
+}
+
+.ability-card:hover{
+    transform:translateY(-4px);
+}
+
+.ability-card h3{
+    margin:0 0 10px 0;
+    color:#1e293b;
+    text-align:left;
+}
+
+.progress-bar{
+    width:100%;
+    height:14px;
+    background:#e5e7eb;
+    border-radius:999px;
+    overflow:hidden;
+    margin:10px 0;
+}
+
+.progress{
+    height:100%;
+    background:linear-gradient(90deg,#5d75ff,#00c6ff);
+    border-radius:999px;
+}
+select {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+select option {
+    font-size:50px;
+    padding: 10px;
+}
+
+.suggestion{
+    font-style:italic;
+    color:#475569;
+    margin-top:8px;
+}
+
+.chart-section{
+    background:white;
+    padding:24px;
+    border-radius:18px;
+    margin-top:28px;
+    box-shadow:0 10px 24px rgba(15,23,42,0.08);
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+}
+
+.career-card{
+    background:linear-gradient(135deg,#0ea5e9,#2563eb);
+    color:white;
+    padding:22px;
+    border-radius:18px;
+    margin-top:26px;
+    box-shadow:0 14px 28px rgba(37,99,235,0.2);
+}
+
+.footer-note{
+    margin-top:14px;
+    text-align:center;
+    color:rgba(255,255,255,0.7);
+    font-size:12px;
+}
+
+/* PDF SAFE */
+.pdf-mode,
+.pdf-mode *{
+    animation:none !important;
+    transition:none !important;
+    transform:none !important;
+}
+
+.pdf-mode{
+    box-shadow:none !important;
+}
+
+.pdf-mode .ability-card,
+.pdf-mode .chart-section{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+}
+
+.pdf-mode canvas{
+    display:none !important;
+}
+
+.pdf-mode button{
+    display:none !important;
+}
+
+.pdf-only{
+    background:white !important;
+    width:794px;
+    padding:20px;
+}
+
+@media (max-width:900px){
+    #loginBox{
+        grid-template-columns:1fr;
+    }
+
+    .login-left{
+        display:none;
+    }
+
+    .container{
+        padding:24px 18px;
+        border-radius:22px;
+    }
+
+    #questionText{
+        font-size:18px;
+        padding:18px;
+    }
+
+    .student-info{
+        flex-direction:column;
+    }
+}
+
+@media (max-width:520px){
+    body{
+        padding:14px 10px;
+    }
+
+    .container{
+        padding:18px 14px;
+    }
+
+    #startPage h1,
+    .report-header h1,
+    #abilityTitle{
+        font-size:24px;
+    }
+
+    .overall-card h2{
+        font-size:22px;
+    }
+
+    input,select,button{
+        font-size:14px;
+    }
+}
+.top-assessment-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+}
+
+.assessment-pill{
+    padding:8px 14px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#dbeafe,#e0e7ff);
+    color:#4338ca;
+    font-size:13px;
+    font-weight:700;
+}
+
+#questionCounter{
+    font-size:14px;
+    font-weight:700;
+    color:#475569;
+}
+
+.progress-wrap{
+    margin-bottom:20px;
+}
+
+.progress-track{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:999px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    width:0%;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#6366f1,#06b6d4);
+    transition:width 0.35s ease;
+}
+
+.question-btn-row{
+    display:flex;
+    justify-content:center;
+    margin-top:22px;
+}
+</style>
+</head>
+
+<body>
+   <div class="container" id="loginBox">
+    <div class="login-left">
+        <div class="login-badge">
+            <div class="login-badge-icon">🎓</div>
+            <span>SMART FutureMeter</span>
+        </div>
+
+        <h1>Student Ability Assessment Platform</h1>
+        <p>
+            A smart and modern platform to evaluate student abilities, generate beautiful reports,
+            and deliver a premium assessment experience.
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>⚡ Fast Access</h4>
+                <p>Simple login and instant assessment flow.</p>
+            </div>
+            <div class="feature-card">
+                <h4>📊 Smart Reports</h4>
+                <p>Visual analysis with charts and progress tracking.</p>
+            </div>
+            <div class="feature-card">
+                <h4>🎯 Ability Insights</h4>
+                <p>Skill-wise breakdown for better understanding.</p>
+            </div>
+            <div class="feature-card">
+                <h4>📱 Responsive UI</h4>
+                <p>Looks clean on desktop, tablet, and mobile.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-right">
+        <div class="login-panel">
+            <h2>Login Portal</h2>
+            <p class="login-subtext">Enter your details to continue</p>
+
+            <label>Select Role</label>
+            <select id="role">
+                <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+            </select>
+
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter email">
+
+            <label>Mobile Number</label>
+            <input type="tel" id="mobile" placeholder="Enter mobile number">
+
+            <button onclick="login()">Login</button>
+            <div class="footer-note">Secure • Elegant • Student Friendly</div>
+        </div>
+    </div>
+</div>   <div id="testSection" style="display:none;">
+    </div><div class="container assessment-setup" id="startPage" style="display: none;">
+    <div class="setup-badge">Assessment Setup</div>
+    <h1>Welcome to Student Ability Assessment</h1>
+    <p class="setup-subline">
+        Fill in your details below to begin your personalized assessment experience.
+    </p>
+
+    <label>Student Name</label>
+    <input type="text" id="studentName" placeholder="Enter your name">
+
+    <label>Select Class</label>
+    <select id="studentClass">
+        <option value="1">Class 1</option>
+        <option value="2">Class 2</option>
+        <option value="3">Class 3</option>
+        <option value="4">Class 4</option>
+        <option value="5">Class 5</option>
+        <option value="6">Class 6</option>
+        <option value="7">Class 7</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+        <option value="10">Class 10</option>
+        <option value="11">Class 11</option>
+        <option value="12">Class 12</option>
+    </select>
+
+    <label>Number of Questions per Ability</label>
+    <input type="number" id="numQuestions" value="1" min="1" max="20">
+
+    <button onclick="startAssessment()">Start Test</button>
+</div>
+<div class="test-top-bar">
+    <div class="assessment-pill">Live Assessment</div>
+    <div class="timer-box">⏱ Elapsed Time: <span id="stopwatchDisplay">00:00</span></div>
+</div>
+<div class="container" id="questionArea">
+    <div class="top-assessment-bar">
+        <div class="assessment-pill">Live Assessment</div>
+        <div id="questionCounter">Question 1</div>
+    </div>
+
+    <div class="progress-wrap">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <h2 id="abilityTitle"></h2>
+    <div id="questionText"></div>
+    <div id="optionsBox"></div>
+
+    <div class="question-btn-row">
+        <button onclick="nextQuestion()">Next</button>
+    </div>
+</div>
+
+<div class="container report pdf-only" id="finalSummary">
+    <h2>Final Report</h2>
+    <h2 style="font-size:32px; color:#1e293b; margin-bottom:10px;">Final Report</h2>
+<p style="text-align:center; color:#64748b; margin-bottom:20px;">
+    Comprehensive analysis of student performance and ability profile
+</p>
+    <div id="summaryText"></div>
+    <canvas id="scoreChart" style="max-width: 100%; margin-top: 20px;"></canvas>
+    <button onclick="downloadPDF()">Download PDF</button>
+</div>
+<!-- PDF helper container (DO NOT TOUCH) -->
+<div id="pdfWrapper" style="display:none;"></div>
+<script>
+// ==========================
+// GLOBAL STATE
+// ==========================
+const STATE = {
+    studentName: "",
+    class: "",
+    numQuestions: 5,
+    abilityOrder: ["Numeracy","Grammar","Reasoning","Memory","IQ","DecisionMaking","Discipline","Personality"],
+    scores: {},
+    totalQs: {},
+    correctQs: {},
+    currentAbilityIndex: 0,
+    currentQuestions: [],
+    currentQIndex: 0,
+    selectedAnswer: null
+};
+
+
+function login(){
+
+const role = document.getElementById("role").value;
+const email = document.getElementById("email").value;
+const mobile = document.getElementById("mobile").value;
+
+if(email.trim()==="" || mobile.trim()===""){
+    alert("Please enter email and mobile");
+    return;
+}
+
+// OPTIONAL: send to server
+fetch("http://localhost:5000/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        email: email,
+        mobile: mobile,
+        role: role
+    })
+})
+.then(res => res.json())
+.then(data => {
+    if (data.success) {
+
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("testSection").style.display = "block";
+        window.location.href = "assessment.html";
+
+    } else {
+        alert("Login Failed");
+    }
+});
+}
+
+// ==========================
+// LOAD ABILITY QUESTIONS
+// ==========================
+function loadAbility(){
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const key = (ability==="Decision Making")?"Decision_Making":ability;
+    STATE.currentQuestions = [...QUESTION_BANK[STATE.class][key]];
+    shuffle(STATE.currentQuestions);
+    STATE.currentQuestions = STATE.currentQuestions.slice(0, STATE.numQuestions);
+    STATE.totalQs[ability] = STATE.currentQuestions.length;
+    STATE.currentQIndex = 0;
+    STATE.selectedAnswer = null;
+    loadQuestion();
+}
+
+// ==========================
+// LOAD ONE QUESTION
+// ==========================
+function loadQuestion(){
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const qObj = STATE.currentQuestions[STATE.currentQIndex];
+    document.getElementById("abilityTitle").innerText = ability+" Test";
+    document.getElementById("questionText").innerText = qObj.q;
+
+    const box = document.getElementById("optionsBox");
+    box.innerHTML = "";
+    qObj.options.forEach(op=>{
+        const div = document.createElement("div");
+        div.className = "option";
+        div.innerText = op;
+        div.onclick = ()=>selectOption(div, op);
+        box.appendChild(div);
+    });
+    startStopwatch();
+}
+
+// ==========================
+// SELECT OPTION
+// ==========================
+function selectOption(element,value){
+    STATE.selectedAnswer = value;
+    document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+    element.classList.add("selected");
+}
+
+// ==========================
+// NEXT QUESTION
+// ==========================
+function nextQuestion(){
+    if(!STATE.selectedAnswer){ alert("Select an option first!"); return; }
+    const ability = STATE.abilityOrder[STATE.currentAbilityIndex];
+    const qObj = STATE.currentQuestions[STATE.currentQIndex];
+
+    if(STATE.selectedAnswer === qObj.options[qObj.ans]){ STATE.scores[ability]++; STATE.correctQs[ability]++; }
+
+    STATE.selectedAnswer = null;
+    STATE.currentQIndex++;
+    if(STATE.currentQIndex >= STATE.currentQuestions.length){
+        STATE.currentAbilityIndex++;
+        if(STATE.currentAbilityIndex >= STATE.abilityOrder.length){ finishAllAbilities(); return; }
+        loadAbility();
+    } else { loadQuestion(); }
+}
+
+// ==========================
+// SHUFFLE
+// ==========================
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+}
+
+function startStopwatch() {
+    elapsedSeconds = 0;
+    updateStopwatchDisplay();
+
+    if (stopwatchInterval) {
+        clearInterval(stopwatchInterval);
+    }
+
+    stopwatchInterval = setInterval(() => {
+        elapsedSeconds++;
+        updateStopwatchDisplay();
+    }, 1000);
+}
+
+function stopStopwatch() {
+    if (stopwatchInterval) {
+        clearInterval(stopwatchInterval);
+        stopwatchInterval = null;
+    }
+}
+
+function updateStopwatchDisplay() {
+    const hours = Math.floor(elapsedSeconds / 3600);
+    const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+    const seconds = elapsedSeconds % 60;
+
+    let formattedTime = "";
+
+    if (hours > 0) {
+        formattedTime =
+            String(hours).padStart(2, "0") + ":" +
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+    } else {
+        formattedTime =
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+    }
+
+    document.getElementById("stopwatchDisplay").innerText = formattedTime;
+}
+// ==========================
+// FINAL REPORT
+// ==========================
+function finishAllAbilities(){
+
+document.getElementById("questionArea").style.display = "none";
+const summaryDiv = document.getElementById("finalSummary");
+summaryDiv.style.display = "block";
+
+let html = `
+<div class="report-header">
+<h1>Student Ability Assessment Report</h1>
+<p>Comprehensive Performance Summary</p>
+</div>
+
+<div class="student-info">
+<div><strong>Name:</strong> ${STATE.studentName}</div>
+<div><strong>Class:</strong> ${STATE.class}</div>
+</div>
+`;
+
+const labels=[];
+const data=[];
+
+let totalScore=0;
+let totalQuestions=0;
+
+let strengths=[];
+let weaknesses=[];
+
+for(const ab of STATE.abilityOrder){
+
+const score=STATE.scores[ab];
+const total=STATE.totalQs[ab];
+const percent=Math.round((score/total)*100);
+
+labels.push(ab);
+data.push(percent);
+
+totalScore+=score;
+totalQuestions+=total;
+
+if(percent>=75) strengths.push(ab);
+if(percent<=40) weaknesses.push(ab);
+
+let suggestion="";
+if(percent>=80)
+suggestion="Excellent ability. Maintain this level.";
+else if(percent>=50)
+suggestion="Good ability but more practice will help.";
+else
+suggestion="Needs improvement. Focused learning recommended.";
+
+html+=`
+<div class="ability-card">
+<h3>${ab}</h3>
+
+<p><strong>Score:</strong> ${score}/${total} (${percent}%)</p>
+
+<div class="progress-bar">
+<div class="progress" style="width:${percent}%"></div>
+</div>
+
+<div class="suggestion">${suggestion}</div>
+</div>
+`;
+}
+
+/* =========================
+   OVERALL PERFORMANCE
+========================= */
+
+const overallPercent=Math.round((totalScore/totalQuestions)*100);
+
+let level="";
+
+if(overallPercent>=85) level="Excellent";
+else if(overallPercent>=70) level="Very Good";
+else if(overallPercent>=50) level="Good";
+else level="Needs Improvement";
+
+html=`
+<div class="overall-card">
+<h2>Overall Performance</h2>
+<p>Total Score: ${totalScore} / ${totalQuestions}</p>
+<p>Overall Percentage: ${overallPercent}%</p>
+<p>Performance Level: ${level}</p>
+</div>
+` + html;
+
+/* =========================
+   STRENGTH ANALYSIS
+========================= */
+
+html+=`
+<div class="analysis-card">
+<h2>Ability Analysis</h2>
+
+<p><strong>Strong Abilities:</strong> 
+${strengths.length?strengths.join(", "):"None identified yet"}
+</p>
+
+<p><strong>Areas To Improve:</strong>
+${weaknesses.length?weaknesses.join(", "):"None"}
+</p>
+
+</div>
+`;
+
+/* =========================
+   CAREER SUGGESTIONS
+========================= */
+
+let careers=[];
+
+if(strengths.includes("Numeracy")||strengths.includes("IQ"))
+careers.push("Engineering / Technology");
+
+if(strengths.includes("Reasoning"))
+careers.push("Research / Data Science");
+
+if(strengths.includes("Personality"))
+careers.push("Leadership / Management");
+
+if(strengths.includes("Grammar"))
+careers.push("Media / Communication");
+
+if(careers.length===0)
+careers.push("General Academic Fields");
+
+html+=`
+<div class="career-card">
+<h2>Suggested Future Directions</h2>
+<p>${careers.join(", ")}</p>
+</div>
+`;
+
+/* =========================
+   CHART SECTION
+========================= */
+
+html+=`
+<div class="chart-section">
+<h2 style="text-align:center">Ability Radar Chart</h2>
+<canvas id="scoreChart"></canvas>
+</div>
+`;
+
+document.getElementById("summaryText").innerHTML=html;
+
+/* =========================
+   RADAR CHART
+========================= */
+
+const ctx=document.getElementById("scoreChart").getContext('2d');
+
+if(window.scoreChartInstance instanceof Chart){
+window.scoreChartInstance.destroy();
+}
+
+window.scoreChartInstance=new Chart(ctx,{
+type:'radar',
+data:{
+labels:labels,
+datasets:[{
+label:'Ability Score %',
+data:data,
+backgroundColor:'rgba(93,117,255,0.25)',
+borderColor:'#5d75ff',
+pointBackgroundColor:'#5d75ff',
+borderWidth:3
+}]
+},
+options:{
+plugins:{
+legend:{display:false}
+},
+scales:{
+r:{
+beginAtZero:true,
+max:100,
+ticks:{stepSize:20}
+}
+}
+}
+});
+
+}
+
+
+// ==========================
+// PDF Download
+// ==========================
+function downloadPDF() {
+    const report = document.getElementById("finalSummary");
+    const pdfWrapper = document.getElementById("pdfWrapper");
+
+    // Clone report
+    const clone = report.cloneNode(true);
+    clone.classList.add("pdf-mode");
+    clone.style.display = "block";
+    clone.style.width = "794px"; // A4 width
+    clone.style.background = "white";
+
+    // Convert chart canvas to image
+    const originalCanvas = document.getElementById("scoreChart");
+    const chartImg = document.createElement("img");
+    chartImg.src = originalCanvas.toDataURL("image/png", 1.0);
+    chartImg.style.width = "100%";
+    chartImg.style.marginTop = "20px";
+
+    // Replace canvas with image in clone
+    const cloneCanvas = clone.querySelector("canvas");
+    if (cloneCanvas) {
+        cloneCanvas.parentNode.replaceChild(chartImg, cloneCanvas);
+    }
+    // ❌ REMOVE DOWNLOAD PDF BUTTON FROM CLONE
+const cloneButton = clone.querySelector("button");
+if (cloneButton) {
+    cloneButton.remove();
+}
+
+
+    // Clear wrapper and append clone
+    pdfWrapper.innerHTML = "";
+    pdfWrapper.appendChild(clone);
+    pdfWrapper.style.display = "block";
+
+    const opt = {
+        margin: 10,
+        filename: `${STATE.studentName}_Ability_Report.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            scrollY: 0
+        },
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        },
+        pagebreak: {
+            mode: ['avoid-all', 'css', 'legacy']
+        }
+    };
+
+    // WAIT before generating (critical)
+    setTimeout(() => {
+        html2pdf().set(opt).from(clone).save().then(() => {
+            pdfWrapper.style.display = "none";
+        });
+    }, 1200);
+}
+</script>
+</body>
+</html>
